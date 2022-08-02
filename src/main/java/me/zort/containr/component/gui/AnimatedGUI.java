@@ -1,7 +1,11 @@
-package me.zort.containr;
+package me.zort.containr.component.gui;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.zort.containr.GUI;
+import me.zort.containr.GUIRepository;
+import me.zort.containr.component.element.AnimatedElement;
+import me.zort.containr.component.element.AnimatedSuppliedElement;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;

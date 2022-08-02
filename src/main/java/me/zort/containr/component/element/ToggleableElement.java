@@ -1,6 +1,7 @@
-package me.zort.containr;
+package me.zort.containr.component.element;
 
 import lombok.Getter;
+import me.zort.containr.Element;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;

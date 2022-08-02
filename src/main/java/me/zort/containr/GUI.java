@@ -10,17 +10,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
-public class GUI {
+public class GUI implements InventoryHolder, Iterable<Element> {
 
     private static final String ELEMENT_ID_KEY = "gui_element_id";
 
@@ -32,10 +32,13 @@ public class GUI {
     private boolean initial = true;
 
     public GUI(String title, int rows) {
-        this(Bukkit.createInventory(null, 9 * rows, title));
+        Inventory inventory = Bukkit.createInventory(this, rows * 9, title);
+        this.container = Containers.ofInv(inventory);
+        this.inventory = inventory;
     }
 
-    public GUI(Inventory inventory) {
+    public GUI(InventoryType type, String title) {
+        Inventory inventory = Bukkit.createInventory(this, type, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
     }
@@ -124,6 +127,12 @@ public class GUI {
 
     public Inventory getHandle() {
         return inventory;
+    }
+
+    @NotNull
+    @Override
+    public Iterator<Element> iterator() {
+        return container.iterator();
     }
 
 }

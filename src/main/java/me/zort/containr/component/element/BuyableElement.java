@@ -1,7 +1,10 @@
-package me.zort.containr;
+package me.zort.containr.component.element;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.zort.containr.Container;
+import me.zort.containr.Element;
+import me.zort.containr.GUI;
 import me.zort.containr.util.QuadConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;

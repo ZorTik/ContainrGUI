@@ -1,4 +1,4 @@
-package me.zort.containr;
+package me.zort.containr.component.element;
 
 import com.google.common.collect.Lists;
 

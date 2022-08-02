@@ -1,6 +1,9 @@
 package me.zort.containr;
 
 import com.google.common.collect.Maps;
+import me.zort.containr.Container;
+import me.zort.containr.Element;
+import me.zort.containr.Util;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.util.Pair;
 import org.jetbrains.annotations.NotNull;

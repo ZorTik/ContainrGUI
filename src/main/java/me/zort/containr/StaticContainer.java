@@ -2,6 +2,9 @@ package me.zort.containr;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.zort.containr.Container;
+import me.zort.containr.Element;
+import me.zort.containr.Util;
 import me.zort.containr.util.Pair;
 
 import java.util.*;

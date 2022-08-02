@@ -1,7 +1,10 @@
-package me.zort.containr;
+package me.zort.containr.component.element;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
+import me.zort.containr.Container;
+import me.zort.containr.Element;
+import me.zort.containr.GUI;
 import me.zort.containr.util.CyclicArrayList;
 import me.zort.containr.util.QuadConsumer;
 import org.bukkit.entity.Player;

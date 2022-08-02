@@ -206,7 +206,7 @@ public abstract class Container implements Iterable<Element> {
         return containers.values().stream().noneMatch(c -> c.getSelection().contains(convertElementRealPosToCoords(slot))) && !elements.containsKey(slot);
     }
 
-    protected void setParent(Container parent) {
+    void setParent(Container parent) {
         if(parent != null && parent != this) {
             parent.getContainers().values().removeIf(c -> c == this);
         }

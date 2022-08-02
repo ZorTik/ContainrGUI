@@ -1,5 +1,6 @@
-package me.zort.containr;
+package me.zort.containr.component.gui;
 
+import me.zort.containr.Element;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 

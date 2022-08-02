@@ -2,7 +2,7 @@ package me.zort.containr;
 
 import me.zort.containr.geometry.Tetragon;
 
-final class Util {
+public final class Util {
 
     public static int[] relativeToRealCoords(int[] relative, Container container) {
         Tetragon tetragon = container.getSelection();
