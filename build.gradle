@@ -54,6 +54,23 @@ publishing {
             version = '1.0'
 
             from components.java
+            pom {
+                name = 'ContainrGUI'
+                description = 'An Advanced GUI library for Spigot.'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://raw.githubusercontent.com/ZorTik/ContainrGUI/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'zort'
+                        name = 'ZorTik'
+                        email = 'zortlegit@gmail.com'
+                    }
+                }
+            }
         }
     }
 }
