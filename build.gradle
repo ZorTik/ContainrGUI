@@ -30,6 +30,7 @@ dependencies {
 }
 
 shadowJar {
+    archiveName = "$baseName-$version.$extension"
     relocate('de.tr7zw.changeme', 'libs.de.tr7zw')
     relocate('de.tr7zw.annotations', 'libs.de.tr7zw.annotations')
 }
@@ -38,4 +39,8 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+artifacts {
+    archives shadowJar
 }
