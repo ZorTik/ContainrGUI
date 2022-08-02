@@ -5,7 +5,9 @@ plugins {
 
 compileJava.options.encoding = 'UTF-8'
 
-group 'me.zort'
+apply plugin: 'maven-publish'
+
+group = 'com.github.ZorTik'
 version '1.0-SNAPSHOT'
 
 repositories {
