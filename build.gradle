@@ -1,11 +1,10 @@
 plugins {
     id 'java'
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id 'maven-publish'
 }
 
 compileJava.options.encoding = 'UTF-8'
-
-apply plugin: 'maven-publish'
 
 group = 'com.github.ZorTik'
 version '1.0-SNAPSHOT'
