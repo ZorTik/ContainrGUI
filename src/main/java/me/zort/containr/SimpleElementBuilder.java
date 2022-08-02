@@ -1,6 +1,6 @@
 package me.zort.containr;
 
-import me.zort.containr.util.QuadConsumer;
+import me.zort.containr.internal.util.QuadConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;

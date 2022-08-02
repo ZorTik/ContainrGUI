@@ -1,4 +1,4 @@
-package me.zort.containr.util;
+package me.zort.containr.internal.util;
 
 @FunctionalInterface
 public interface QuadConsumer<T, U, D, A> {

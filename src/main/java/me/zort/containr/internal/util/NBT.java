@@ -1,4 +1,4 @@
-package me.zort.containr.util;
+package me.zort.containr.internal.util;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.inventory.ItemStack;

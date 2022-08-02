@@ -1,7 +1,7 @@
 package me.zort.containr;
 
 import lombok.Getter;
-import me.zort.containr.util.QuadConsumer;
+import me.zort.containr.internal.util.QuadConsumer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;

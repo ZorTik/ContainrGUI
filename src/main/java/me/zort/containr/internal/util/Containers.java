@@ -1,4 +1,4 @@
-package me.zort.containr.util;
+package me.zort.containr.internal.util;
 
 import me.zort.containr.Container;
 import me.zort.containr.StaticContainer;

@@ -2,7 +2,7 @@ package me.zort.containr.geometry;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.zort.containr.util.Pair;
+import me.zort.containr.internal.util.Pair;
 
 import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;

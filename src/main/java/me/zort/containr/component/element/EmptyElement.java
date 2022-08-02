@@ -3,7 +3,7 @@ package me.zort.containr.component.element;
 import me.zort.containr.Container;
 import me.zort.containr.Element;
 import me.zort.containr.GUI;
-import me.zort.containr.util.QuadConsumer;
+import me.zort.containr.internal.util.QuadConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;

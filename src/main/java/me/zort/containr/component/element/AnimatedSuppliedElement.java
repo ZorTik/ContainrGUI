@@ -3,7 +3,7 @@ package me.zort.containr.component.element;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.zort.containr.Element;
-import me.zort.containr.util.CyclicArrayList;
+import me.zort.containr.internal.util.CyclicArrayList;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;

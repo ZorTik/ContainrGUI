@@ -3,7 +3,7 @@ package me.zort.containr;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import me.zort.containr.geometry.Tetragon;
-import me.zort.containr.util.Pair;
+import me.zort.containr.internal.util.Pair;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

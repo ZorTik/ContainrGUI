@@ -1,4 +1,4 @@
-package me.zort.containr;
+package me.zort.containr.internal.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
