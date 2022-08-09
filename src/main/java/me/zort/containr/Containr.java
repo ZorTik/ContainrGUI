@@ -18,11 +18,13 @@ public class Containr {
     }
 
     public static void init(@NotNull Plugin plugin) {
-        if(!CURRENT.isEnabled() && LISTENER != null) {
-            HandlerList.unregisterAll(LISTENER);
-            LISTENER = null;
-        } else if(CURRENT.isEnabled()) {
-            return;
+        if(CURRENT != null) {
+            if(!CURRENT.isEnabled() && LISTENER != null) {
+                HandlerList.unregisterAll(LISTENER);
+                LISTENER = null;
+            } else if(CURRENT.isEnabled()) {
+                return;
+            }
         }
         getServer().getPluginManager().registerEvents(LISTENER = new GUIListener(), plugin);
         CURRENT = plugin;
