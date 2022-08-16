@@ -1,6 +1,8 @@
 package me.zort.containr;
 
+import com.google.common.collect.Maps;
 import de.tr7zw.changeme.nbtapi.NBTItem;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import me.zort.containr.internal.util.Containers;
@@ -17,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Getter
@@ -30,21 +33,29 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     @Setter
     private boolean frozen = false;
     private boolean initial = true;
+    @Getter(AccessLevel.PROTECTED)
+    private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
 
     public GUI(String title, int rows) {
         Inventory inventory = Bukkit.createInventory(this, rows * 9, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
+        this.closeHandlers = Maps.newConcurrentMap();
     }
 
     public GUI(InventoryType type, String title) {
         Inventory inventory = Bukkit.createInventory(this, type, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
+        this.closeHandlers = Maps.newConcurrentMap();
     }
 
     // User Input
     public void build(Player p) {}
+
+    public void onClose(CloseReason reason, Consumer<Player> handler) {
+        this.closeHandlers.computeIfAbsent(reason, k -> Collections.synchronizedList(new ArrayList<>())).add(handler);
+    }
 
     public void open(Player p) {
         open(p, true);
@@ -71,8 +82,21 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     }
 
     public void close(Player p) {
-        p.closeInventory();
         GUIRepository.remove(p.getName());
+        p.closeInventory();
+        handleClose(p, CloseReason.BY_METHOD);
+    }
+
+    public void handleClose(Player p, CloseReason reason) {
+        if(closeHandlers.containsKey(reason)) {
+            closeHandlers.get(reason).forEach(handler -> {
+                try {
+                    handler.accept(p);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     public void update(Player p) {
@@ -133,6 +157,11 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     @Override
     public Iterator<Element> iterator() {
         return container.iterator();
+    }
+
+    public enum CloseReason {
+        BY_METHOD,
+        BY_PLAYER
     }
 
 }

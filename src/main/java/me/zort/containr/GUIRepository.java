@@ -65,8 +65,8 @@ public final class GUIRepository {
         OPENED_GUIS.put(nick, gui);
     }
 
-    protected static void remove(String nick) {
-        OPENED_GUIS.remove(nick);
+    public static GUI remove(String nick) {
+        return OPENED_GUIS.remove(nick);
     }
 
 }

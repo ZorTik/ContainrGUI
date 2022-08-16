@@ -36,8 +36,13 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         LinkedList<GUI> history = GUIRepository.PREV_GUIS.get(e.getPlayer().getName());
-        if(history == null) return;
-        history.clear();
+        GUI gui = GUIRepository.remove(e.getPlayer().getName());
+        if(gui != null) {
+            gui.handleClose((Player) e.getPlayer(), GUI.CloseReason.BY_PLAYER);
+        }
+        if(history != null) {
+            history.clear();
+        }
     }
 
     @EventHandler
