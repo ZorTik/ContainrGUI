@@ -2,6 +2,7 @@ package me.zort.containr.internal;
 
 import me.zort.containr.GUI;
 import me.zort.containr.GUIRepository;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,10 +30,9 @@ public class GUIListener implements Listener {
             if(inv.getHolder() != null && inv.getHolder() instanceof GUI) {
                 e.setCancelled(true);
                 GUI gui = (GUI) inv.getHolder();
-                if(e.getCursor() != null && !gui.getNormalItemSlots().contains(e.getSlot())) {
+                if(e.getCursor() != null && !e.getCursor().getType().equals(Material.AIR) && !gui.getNormalItemSlots().contains(e.getSlot())) {
                     // If player has item on cursor and this is not a normal item slot,
                     // he's not allowed to put it here.
-                    e.setCancelled(true);
                     return;
                 }
                 ClickType clickType = e.getClick();
