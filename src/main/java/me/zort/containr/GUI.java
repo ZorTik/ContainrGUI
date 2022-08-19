@@ -32,6 +32,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
 
     @Setter
     private boolean frozen = false;
+    private List<Integer> normalItemSlots;
     private boolean initial = true;
     @Getter(AccessLevel.PROTECTED)
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
@@ -147,6 +148,30 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         Element element = elementPair.getValue();
         element.action().accept(this, container, p, clickType);
         return true;
+    }
+
+    public void setNormalItemSlots(Integer... slots) {
+        setNormalItemSlots(Arrays.stream(slots).collect(Collectors.toList()));
+    }
+
+    public void setNormalItemSlots(List<Integer> normalItemSlots) {
+        this.normalItemSlots = normalItemSlots;
+    }
+
+    public List<Integer> getNormalItemSlots() {
+        return new ArrayList<>(normalItemSlots);
+    }
+
+    public Map<Integer, ItemStack> getNormalItems() {
+        Map<Integer, Element> content = container.content((List<Class<? extends Element>>) null);
+        Map<Integer, ItemStack> items = Maps.newHashMap();
+        for(int i = 0; i < inventory.getSize(); i++) {
+            ItemStack item = inventory.getItem(i);
+            if(item != null && !item.getType().equals(Material.AIR) && !content.containsKey(i)) {
+                items.put(i, item);
+            }
+        }
+        return items;
     }
 
     public Inventory getHandle() {

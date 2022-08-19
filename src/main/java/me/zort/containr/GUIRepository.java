@@ -53,6 +53,14 @@ public final class GUIRepository {
         return Optional.of(list.getFirst());
     }
 
+    public static boolean hasOpen(Player p) {
+        return hasOpen(p.getName());
+    }
+
+    public static boolean hasOpen(String nick) {
+        return OPENED_GUIS.containsKey(nick);
+    }
+
     protected static void add(String nick, GUI gui) {
         Optional<GUI> guiOptional;
         if((guiOptional = getPrevious(nick)).isPresent() && guiOptional.get() == gui) return;

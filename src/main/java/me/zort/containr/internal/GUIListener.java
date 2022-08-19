@@ -20,15 +20,27 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         HumanEntity entity = e.getWhoClicked();
-        if(entity instanceof Player && e.getClickedInventory() != null) {
+        if(!(entity instanceof Player)) {
+            return;
+        }
+        if(e.getClickedInventory() != null) {
             Player p = (Player) entity;
             Inventory inv = e.getClickedInventory();
             if(inv.getHolder() != null && inv.getHolder() instanceof GUI) {
                 e.setCancelled(true);
                 GUI gui = (GUI) inv.getHolder();
+                if(e.getCursor() != null && !gui.getNormalItemSlots().contains(e.getSlot())) {
+                    // If player has item on cursor and this is not a normal item slot,
+                    // he's not allowed to put it here.
+                    e.setCancelled(true);
+                    return;
+                }
                 ClickType clickType = e.getClick();
                 ItemStack item = e.getCurrentItem();
                 gui.invokeElement(p, clickType, item);
+            } else if(GUIRepository.hasOpen(p) && e.getClick().name().contains("SHIFT")) {
+                // We don't want to allow players to drop items to gui with shift click.
+                e.setCancelled(true);
             }
         }
     }
