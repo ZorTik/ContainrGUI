@@ -125,7 +125,9 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     }
 
     public void update(Player p, boolean clear, Class<? extends Element>... clazz) {
-        if(clear) inventory.clear();
+        if(clear) {
+            clearInventory();
+        }
         try {
             container.innerContainers().forEach(c -> c.refresh(p));
             Map<Integer, ?> content = container.content(clazz.length > 0 ? Arrays.stream(clazz).collect(Collectors.toList()) : null);
@@ -148,6 +150,21 @@ public class GUI implements InventoryHolder, Iterable<Element> {
             }
         } catch(Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public void clearInventory() {
+        clearInventory(true);
+    }
+
+    public void clearInventory(boolean keepNormalItems) {
+        Map<Integer, ItemStack> normalItems = normalItemSlots
+                .stream()
+                .filter(i -> inventory.getItem(i) != null)
+                .collect(Collectors.toMap(i -> i, inventory::getItem));
+        inventory.clear();
+        if(keepNormalItems) {
+            normalItems.forEach(inventory::setItem);
         }
     }
 
