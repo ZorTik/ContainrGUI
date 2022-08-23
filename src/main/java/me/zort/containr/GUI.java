@@ -45,6 +45,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         this.inventory = inventory;
         this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
+        setNormalItemSlots();
     }
 
     public GUI(InventoryType type, String title) {
@@ -53,6 +54,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         this.inventory = inventory;
         this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
+        setNormalItemSlots();
     }
 
     // User Input
@@ -169,7 +171,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     }
 
     public void setNormalItemSlots(List<Integer> normalItemSlots) {
-        this.normalItemSlots = normalItemSlots;
+        this.normalItemSlots = Collections.synchronizedList(normalItemSlots);
     }
 
     public List<Integer> getNormalItemSlots() {
