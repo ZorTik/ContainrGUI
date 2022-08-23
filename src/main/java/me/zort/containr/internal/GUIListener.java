@@ -15,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.LinkedList;
+import java.util.function.Consumer;
 
 public class GUIListener implements Listener {
 
@@ -33,6 +34,16 @@ public class GUIListener implements Listener {
                 if(e.getCursor() != null && !e.getCursor().getType().equals(Material.AIR) && !gui.getNormalItemSlots().contains(e.getSlot())) {
                     // If player has item on cursor and this is not a normal item slot,
                     // he's not allowed to put it here.
+                    return;
+                } else if(gui.getNormalItemSlots().contains(e.getSlot())) {
+                    e.setCancelled(false);
+                    for(GUI.NormalEditHandler handler : gui.getNormalEditHandlers()) {
+                        try {
+                            handler.onEdit(p, e.getSlot());
+                        } catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                     return;
                 }
                 ClickType clickType = e.getClick();

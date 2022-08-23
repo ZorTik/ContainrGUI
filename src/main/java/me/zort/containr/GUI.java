@@ -34,6 +34,8 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     private boolean frozen = false;
     private List<Integer> normalItemSlots;
     private boolean initial = true;
+    @Getter
+    private final List<NormalEditHandler> normalEditHandlers;
     @Getter(AccessLevel.PROTECTED)
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
 
@@ -41,6 +43,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         Inventory inventory = Bukkit.createInventory(this, rows * 9, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
+        this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
     }
 
@@ -48,11 +51,22 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         Inventory inventory = Bukkit.createInventory(this, type, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
+        this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
     }
 
     // User Input
     public void build(Player p) {}
+
+    /**
+     * Adds handler that is invoked when normal item slot changes.
+     * Example: Item is put on normal item slot.
+     *
+     * @param handler Handler to be invoked.
+     */
+    public void onNormalEdit(NormalEditHandler handler) {
+        normalEditHandlers.add(handler);
+    }
 
     public void onClose(CloseReason reason, Consumer<Player> handler) {
         this.closeHandlers.computeIfAbsent(reason, k -> Collections.synchronizedList(new ArrayList<>())).add(handler);
@@ -182,6 +196,10 @@ public class GUI implements InventoryHolder, Iterable<Element> {
     @Override
     public Iterator<Element> iterator() {
         return container.iterator();
+    }
+
+    public interface NormalEditHandler {
+        void onEdit(Player player, int slot);
     }
 
     public enum CloseReason {
