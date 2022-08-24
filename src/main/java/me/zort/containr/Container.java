@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.internal.util.Pair;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -19,7 +20,7 @@ public abstract class Container implements Iterable<Element> {
     private final Map<Integer, Container> containers;
     private final Map<Integer, Element> elements;
 
-    private final Tetragon selection;
+    private Tetragon selection;
     @Getter
     private Container parent;
 
@@ -165,6 +166,11 @@ public abstract class Container implements Iterable<Element> {
                 );
             }
         });
+    }
+
+    @ApiStatus.Internal
+    public void changeSelection(int xSize, int ySize) {
+        this.selection = new Tetragon(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
     }
 
     public Optional<Pair<Container, Element>> findElementById(String id) {
