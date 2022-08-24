@@ -15,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.LinkedList;
-import java.util.function.Consumer;
 
 public class GUIListener implements Listener {
 
@@ -25,8 +24,13 @@ public class GUIListener implements Listener {
         if(!(entity instanceof Player)) {
             return;
         }
+        Player p = (Player) entity;
+        if(GUIRepository.hasOpen(p) && e.getClick().name().contains("SHIFT")) {
+            // We don't want to allow players to drop items to gui with shift click.
+            e.setCancelled(true);
+            return;
+        }
         if(e.getClickedInventory() != null) {
-            Player p = (Player) entity;
             Inventory inv = e.getClickedInventory();
             if(inv.getHolder() != null && inv.getHolder() instanceof GUI) {
                 e.setCancelled(true);
@@ -52,9 +56,6 @@ public class GUIListener implements Listener {
                 ClickType clickType = e.getClick();
                 ItemStack item = e.getCurrentItem();
                 gui.invokeElement(p, clickType, item);
-            } else if(GUIRepository.hasOpen(p) && e.getClick().name().contains("SHIFT")) {
-                // We don't want to allow players to drop items to gui with shift click.
-                e.setCancelled(true);
             }
         }
     }
