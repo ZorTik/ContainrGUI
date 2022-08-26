@@ -7,10 +7,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryCreativeEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,7 +22,7 @@ public class GUIListener implements Listener {
             return;
         }
         Player p = (Player) entity;
-        if(GUIRepository.hasOpen(p) && e.getClick().name().contains("SHIFT")) {
+        if(GUIRepository.hasOpen(p) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             // We don't want to allow players to drop items to gui with shift click.
             e.setCancelled(true);
             return;
