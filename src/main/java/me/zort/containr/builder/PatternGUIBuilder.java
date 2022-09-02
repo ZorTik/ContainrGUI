@@ -24,6 +24,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     private final Map<Integer, Element> elements;
 
     private String title;
+    private Element filler;
 
     public PatternGUIBuilder(String title, String[] pattern) {
         Preconditions.checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
@@ -33,6 +34,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.pattern = pattern;
         this.containers = new ConcurrentHashMap<>();
         this.elements = new ConcurrentHashMap<>();
+        this.filler = null;
     }
 
     public PatternGUIBuilder andTitle(String title) {
@@ -97,6 +99,11 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         return andMark(symbol, ItemElement.on(item));
     }
 
+    public PatternGUIBuilder andFill(Element element) {
+        this.filler = element;
+        return this;
+    }
+
     public AnimatedGUI build(int period, TimeUnit unit) {
         return new AnimatedGUI(title, rows, period, unit) {
             @Override
@@ -116,9 +123,13 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     private void doBuild(GUI gui) {
-        gui.getContainer().clear();
-        containers.forEach(gui.getContainer()::setContainer);
-        elements.forEach(gui.getContainer()::setElement);
+        Container container = gui.getContainer();
+        container.clear();
+        containers.forEach(container::setContainer);
+        elements.forEach(container::setElement);
+        if(filler != null) {
+            container.fillElement(filler);
+        }
     }
 
     private static class IndexIterator implements Iterator<Integer> {
