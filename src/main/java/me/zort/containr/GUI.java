@@ -5,6 +5,7 @@ import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.zort.containr.builder.PatternGUIBuilder;
 import me.zort.containr.internal.util.Containers;
 import me.zort.containr.internal.util.NBT;
 import me.zort.containr.internal.util.Pair;
@@ -24,6 +25,14 @@ import java.util.stream.Collectors;
 
 @Getter
 public class GUI implements InventoryHolder, Iterable<Element> {
+
+    public static PatternGUIBuilder ofPattern(Collection<String> pattern) {
+        return ofPattern(pattern.toArray(new String[0]));
+    }
+
+    public static PatternGUIBuilder ofPattern(String[] pattern) {
+        return new PatternGUIBuilder("", pattern);
+    }
 
     private static final String ELEMENT_ID_KEY = "gui_element_id";
 

@@ -55,6 +55,11 @@ public abstract class Container implements Iterable<Element> {
         getElements().clear();
     }
 
+    public boolean setContainer(int positionRelativeIndex, @NotNull Container container) {
+        return setContainer(container, positionRelativeIndex);
+    }
+
+    @Deprecated
     public boolean setContainer(@NotNull Container container, int positionRelativeIndex) {
         int[] positionRealCoords = convertElementRealPosToCoords(convertElementPosToRealPos(positionRelativeIndex));
         Tetragon selection = container.getSelection();
@@ -124,6 +129,11 @@ public abstract class Container implements Iterable<Element> {
         }
     }
 
+    public void setElement(int relativeIndex, Element element) {
+        setElement(element, relativeIndex);
+    }
+
+    @Deprecated
     public void setElement(Element element, int relativeIndex) {
         getElements().put(relativeIndex, element);
     }
