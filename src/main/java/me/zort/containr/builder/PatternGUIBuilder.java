@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
@@ -52,6 +53,30 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     private void putContainerMatch(LocalContainerMatcher.SizeMatch match, Container container) {
         this.containers.put(match.getIndex(), container);
+    }
+
+    /**
+     * Puts an element to the queue for another symbol of the same type.
+     * This can be used to insert elements to ornaments without using
+     * containers.
+     * <p>
+     * Example:
+     * #X#X#X#
+     * -------
+     * If symbol on index 0 (first X from top left) is taken, the element
+     * is put to the next available index.
+     * @param symbol Symbol to be matched.
+     * @param elementsToAdd Elements to be put.
+     * @return This builder.
+     */
+    public PatternGUIBuilder addQueue(String symbol, Element... elementsToAdd) {
+        checkSymbol(symbol);
+        IndexIterator iter = new IndexIterator(pattern, symbol, elements::containsKey);
+        for(Element element : elementsToAdd) {
+            if(!iter.hasNext()) break;
+            elements.put(iter.next(), element);
+        }
+        return this;
     }
 
     public PatternGUIBuilder andMark(String symbol, Element element) {
@@ -94,6 +119,38 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         gui.getContainer().clear();
         containers.forEach(gui.getContainer()::setContainer);
         elements.forEach(gui.getContainer()::setElement);
+    }
+
+    private static class IndexIterator implements Iterator<Integer> {
+
+        private final List<Integer> availableIndexes;
+        private int current;
+
+        public IndexIterator(String[] pattern, String symbol, Predicate<Integer> pred) {
+            this.availableIndexes = new ArrayList<>();
+            this.current = -1;
+            int index = 0;
+            for(String line : pattern) {
+                for(char c : line.toCharArray()) {
+                    if(c == symbol.charAt(0) && pred.test(index)) {
+                        availableIndexes.add(index);
+                    }
+                    index++;
+                }
+            }
+        }
+
+        @Override
+        public Integer next() {
+            current++;
+            return availableIndexes.get(current);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return availableIndexes.size() > current + 1;
+        }
+
     }
 
     private static class LocalContainerMatcher {
