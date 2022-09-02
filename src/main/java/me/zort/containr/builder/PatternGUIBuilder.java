@@ -25,7 +25,8 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     private String title;
 
     public PatternGUIBuilder(String title, String[] pattern) {
-        Preconditions.checkArgument(pattern.length > 0, "Pattern must not be empty!");
+        Preconditions.checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
+        validatePatternWidth(pattern);
         this.title = title;
         this.rows = pattern.length;
         this.pattern = pattern;
@@ -180,6 +181,14 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     private static void checkSymbol(String symbol) {
         Preconditions.checkArgument(symbol.length() == 1, "The symbol must be a single character!");
+    }
+
+    private static void validatePatternWidth(String[] pattern) {
+        for(String line : pattern) {
+            if(line.length() != 9) {
+                throw new IllegalArgumentException("Pattern width must be 9!");
+            }
+        }
     }
 
 }

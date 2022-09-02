@@ -21,7 +21,6 @@ public class PatternExample {
         GUI gui = GUI.ofPattern(pattern)
                 .andTitle("Pattern inner container.")
                 .andMark("X", PagedContainer.class, c -> {
-                    c.clear();
                     c.appendElement(SimpleElementBuilder.b()
                             .item(Items.blank(Material.GRASS))
                             .action((g, c1, p, ct) -> {
