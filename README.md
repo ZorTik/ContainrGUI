@@ -4,6 +4,8 @@ Main inspiration for this project was container system from CSS Bootstrap.
 
 > Ultimate GUI solution with animated GUIs!
 
+[New: Patterns](https://github.com/ZorTik/ContainrGUI/blob/master/src/main/java/me/zort/containr/examples/PatternExample.java)
+
 ## Installation
 You can add Containr to your build path using Maven or Gradle. ContainrGUI is **not a Minecraft plugin**! This means that you can use it's code directly in your project by shading it into your build path.
 
