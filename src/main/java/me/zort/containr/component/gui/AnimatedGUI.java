@@ -24,11 +24,13 @@ public abstract class AnimatedGUI extends GUI {
     private Timer timer;
     @Nullable
     private Player currentPlayer;
+    private boolean stopped;
 
     public AnimatedGUI(String title, int rows, int period, TimeUnit unit) {
         super(title, rows);
         this.period = unit.toMillis(period);
         this.currentPlayer = null;
+        this.stopped = false;
     }
 
     @Override
@@ -43,13 +45,17 @@ public abstract class AnimatedGUI extends GUI {
             @Override
             public void run() {
                 GUI gui = GUIRepository.OPENED_GUIS.getOrDefault(currentPlayer.getName(), null);
-                if(gui == null || !gui.equals(AnimatedGUI.this) || !currentPlayer.isOnline() || !GUIRepository.OPENED_GUIS.containsKey(p.getName())) {
+                if(gui == null || !gui.equals(AnimatedGUI.this) || !currentPlayer.isOnline() || !GUIRepository.OPENED_GUIS.containsKey(p.getName()) || stopped) {
                     cancel();
                     return;
                 }
                 tickAnimatedElements(currentPlayer);
             }
         }.runTaskTimer(Bukkit.getPluginManager().getPlugins()[0], 0L, period / (1000 / 20));
+    }
+
+    public void kill() {
+        this.stopped = true;
     }
 
     public void onPreTick(Player player) {}
