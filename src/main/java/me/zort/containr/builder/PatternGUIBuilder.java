@@ -73,7 +73,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
      */
     public PatternGUIBuilder addQueue(String symbol, Element... elementsToAdd) {
         checkSymbol(symbol);
-        IndexIterator iter = new IndexIterator(pattern, symbol, elements::containsKey);
+        IndexIterator iter = new IndexIterator(pattern, symbol, i -> !elements.containsKey(i));
         for(Element element : elementsToAdd) {
             if(!iter.hasNext()) break;
             elements.put(iter.next(), element);
