@@ -23,11 +23,6 @@ public class GUIListener implements Listener {
             return;
         }
         Player p = (Player) entity;
-        if(GUIRepository.hasOpen(p) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
-            // We don't want to allow players to drop items to gui with shift click.
-            e.setCancelled(true);
-            return;
-        }
         if(e.getClickedInventory() != null) {
             Inventory inv = e.getClickedInventory();
             if(inv.getHolder() != null && inv.getHolder() instanceof GUI) {
@@ -54,6 +49,10 @@ public class GUIListener implements Listener {
                 ClickType clickType = e.getClick();
                 ItemStack item = e.getCurrentItem();
                 gui.invokeElement(p, clickType, item);
+            } else if(GUIRepository.hasOpen(p) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+                // We don't want to allow players to drop items to gui with shift click.
+                e.setCancelled(true);
+                return;
             }
         }
     }
