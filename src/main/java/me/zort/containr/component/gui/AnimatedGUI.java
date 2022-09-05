@@ -45,7 +45,7 @@ public abstract class AnimatedGUI extends GUI {
             @Override
             public void run() {
                 GUI gui = GUIRepository.OPENED_GUIS.getOrDefault(currentPlayer.getName(), null);
-                if(gui == null || !gui.equals(AnimatedGUI.this) || !currentPlayer.isOnline() || !GUIRepository.OPENED_GUIS.containsKey(p.getName()) || stopped) {
+                if(!currentPlayer.isOnline() || gui != AnimatedGUI.this || stopped) {
                     cancel();
                     return;
                 }
