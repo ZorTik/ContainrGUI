@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.LinkedList;
+import java.util.Optional;
 
 public class GUIListener implements Listener {
 
@@ -60,7 +61,11 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         LinkedList<GUI> history = GUIRepository.PREV_GUIS.get(e.getPlayer().getName());
-        GUI gui = GUIRepository.remove(e.getPlayer().getName());
+        GUI gui = null;
+        if(e.getInventory() == Optional.ofNullable(GUIRepository.OPENED_GUIS.get(e.getPlayer().getName()))
+                .map(GUI::getInventory).orElse(null)) {
+            gui = GUIRepository.remove(e.getPlayer().getName());
+        }
         if(gui != null) {
             gui.handleClose((Player) e.getPlayer(), GUI.CloseReason.BY_PLAYER);
         }
