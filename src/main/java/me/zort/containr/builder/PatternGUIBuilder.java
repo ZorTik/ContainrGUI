@@ -113,6 +113,10 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         };
     }
 
+    public <T extends GUI> T build(PatternGUIFactory<T> factory) {
+        return factory.create(this::doBuild);
+    }
+
     public GUI build() {
         return new GUI(title, rows) {
             @Override
@@ -130,6 +134,10 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         if(filler != null) {
             container.fillElement(filler);
         }
+    }
+
+    public interface PatternGUIFactory<T extends GUI> {
+        T create(Consumer<GUI> doBuildFunction);
     }
 
     private static class IndexIterator implements Iterator<Integer> {
