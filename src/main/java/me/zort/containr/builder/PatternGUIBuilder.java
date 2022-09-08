@@ -114,7 +114,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public <T extends GUI> T build(PatternGUIFactory<T> factory) {
-        return factory.create(this::doBuild);
+        return factory.create(title, rows, this::doBuild);
     }
 
     public GUI build() {
@@ -137,7 +137,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public interface PatternGUIFactory<T extends GUI> {
-        T create(Consumer<GUI> doBuildFunction);
+        T create(String title, int rows, Consumer<GUI> doBuildFunction);
     }
 
     private static class IndexIterator implements Iterator<Integer> {
