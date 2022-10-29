@@ -38,6 +38,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
 
     private final Container container;
     private final Inventory inventory;
+    private final String title;
 
     @Setter
     private boolean frozen = false;
@@ -52,6 +53,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         Inventory inventory = Bukkit.createInventory(this, rows * 9, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
+        this.title = title;
         this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
         setNormalItemSlots();
@@ -61,6 +63,7 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         Inventory inventory = Bukkit.createInventory(this, type, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
+        this.title = title;
         this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
         setNormalItemSlots();
@@ -188,7 +191,9 @@ public class GUI implements InventoryHolder, Iterable<Element> {
         Pair<Container, Element> elementPair = elementOptional.get();
         Container container = elementPair.getKey();
         Element element = elementPair.getValue();
+        ContextClickInfo clickInfo = new ContextClickInfo(this, container, element, p, clickType);
         element.action().accept(this, container, p, clickType);
+        element.click(clickInfo);
         return true;
     }
 

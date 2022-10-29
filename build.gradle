@@ -19,6 +19,10 @@ repositories {
         name = 'NBT-API'
         url = 'https://repo.codemc.org/repository/maven-public/'
     }
+    maven {
+        name = 'minecraft'
+        url = 'https://libraries.minecraft.net/'
+    }
 }
 
 dependencies {
@@ -26,6 +30,7 @@ dependencies {
     implementation 'de.tr7zw:item-nbt-api:2.10.0'
     compileOnly 'commons-lang:commons-lang:2.6'
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
+    compileOnly 'com.mojang:authlib:1.5.21'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }

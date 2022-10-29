@@ -2,6 +2,9 @@ package me.zort.containr.internal.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,7 +14,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,6 +78,42 @@ public final class Items {
         meta.setLore(Arrays.stream(lore).collect(Collectors.toList()));
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    public static ItemStack createSkull(String title, String value) {
+        return createSkull(title, Lists.newArrayList(), value);
+    }
+
+    public static ItemStack createSkull(String title, List<String> lore, String value) {
+        return createSkull(1, title, lore, value);
+    }
+
+    public static ItemStack createSkull(int count, String title, List<String> lore, String value) {
+        Material mat = Material.matchMaterial("SKULL_ITEM");
+        ItemStack head;
+        if(mat != null) {
+            head = new ItemStack(mat, count, (short) 3);
+        } else {
+            mat = Material.matchMaterial("PLAYER_HEAD");
+            head = new ItemStack(mat);
+        }
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        meta.setDisplayName(title);
+        meta.setLore(lore);
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "");
+        PropertyMap properties = profile.getProperties();
+        properties.put("textures", new Property("textures", value));
+        Field profileField;
+        try {
+            Class<? extends SkullMeta> metaClass = meta.getClass();
+            profileField = metaClass.getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            e.printStackTrace();
+        }
+        head.setItemMeta(meta);
+        return head;
     }
 
     public static ItemStack fromConfig(ConfigurationSection section) {

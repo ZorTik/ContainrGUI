@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SimpleElementBuilder {
@@ -17,6 +18,7 @@ public class SimpleElementBuilder {
 
     private Supplier<ItemStack> itemSupplier = null;
     private QuadConsumer<GUI, Container, Player, ClickType> action = (o1, o2, o3, o4) -> {};
+    private Consumer<ContextClickInfo> clickConsumer = (info) -> {};
 
     public SimpleElementBuilder item(ItemStack item) {
         return item(() -> item);
@@ -27,8 +29,14 @@ public class SimpleElementBuilder {
         return this;
     }
 
+    @Deprecated
     public SimpleElementBuilder action(QuadConsumer<GUI, Container, Player, ClickType> action) {
         this.action = action;
+        return this;
+    }
+
+    public SimpleElementBuilder click(Consumer<ContextClickInfo> click) {
+        this.clickConsumer = click;
         return this;
     }
 
@@ -38,6 +46,11 @@ public class SimpleElementBuilder {
             @Override
             public QuadConsumer<GUI, Container, Player, ClickType> action() {
                 return action;
+            }
+
+            @Override
+            public void click(ContextClickInfo info) {
+                clickConsumer.accept(info);
             }
 
             @Nullable

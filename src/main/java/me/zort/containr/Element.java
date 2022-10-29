@@ -18,8 +18,13 @@ public abstract class Element {
         this.id = RandomStringUtils.randomAlphabetic(8);
     }
 
+    @Deprecated
     @NotNull
-    public abstract QuadConsumer<GUI, Container, Player, ClickType> action();
+    public QuadConsumer<GUI, Container, Player, ClickType> action() {
+        return (o1, o2, o3, o4) -> {};
+    }
+
+    public void click(ContextClickInfo info) {}
 
     @Nullable
     public abstract ItemStack item(Player player);
