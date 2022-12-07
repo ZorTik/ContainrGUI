@@ -43,11 +43,24 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
-        for(LocalContainerMatcher.SizeMatch match : new LocalContainerMatcher(pattern, symbol).match()) {
+        /*for(LocalContainerMatcher.SizeMatch match : new LocalContainerMatcher(pattern, symbol).match()) {
             T container = ContainerBuilder.newBuilder(typeClass)
                     .size(match.getSize()[0], match.getSize()[1])
                     .init(initFunction)
                     .build();
+            putContainerMatch(match, container);
+        }
+        return this;*/
+
+        return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
+                .size(xSize, ySize)
+                .init(initFunction)
+                .build());
+    }
+
+    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
+        for(LocalContainerMatcher.SizeMatch match : new LocalContainerMatcher(pattern, symbol).match()) {
+            T container = containerFactory.create(match.getSize()[0], match.getSize()[1]);
             putContainerMatch(match, container);
         }
         return this;
@@ -252,6 +265,21 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
                 return begin[0] == x && end[0] == x + (size[0] - 1);
             }
         }
+
+    }
+
+    public interface ContainerFactoryHelper<T extends Container> {
+
+        /**
+         * Constructs a container based on found x and y sizes.
+         * These sizes are calculated from provided pattern in the
+         * {@link PatternGUIBuilder}.
+         *
+         * @param xSize X size.
+         * @param ySize Y size.
+         * @return Constructed container.
+         */
+        T create(int xSize, int ySize);
 
     }
 
