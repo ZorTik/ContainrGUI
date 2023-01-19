@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter
-public abstract class Container implements Iterable<Element> {
+public abstract class Container implements ContainerComponent {
 
     private final Map<Integer, Container> containers;
     private final Map<Integer, Element> elements;

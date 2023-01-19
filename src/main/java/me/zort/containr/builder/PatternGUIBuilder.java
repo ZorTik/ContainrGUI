@@ -43,15 +43,6 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
-        /*for(LocalContainerMatcher.SizeMatch match : new LocalContainerMatcher(pattern, symbol).match()) {
-            T container = ContainerBuilder.newBuilder(typeClass)
-                    .size(match.getSize()[0], match.getSize()[1])
-                    .init(initFunction)
-                    .build();
-            putContainerMatch(match, container);
-        }
-        return this;*/
-
         return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
                 .size(xSize, ySize)
                 .init(initFunction)

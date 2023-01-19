@@ -17,14 +17,13 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Getter
-public class GUI implements InventoryHolder, Iterable<Element> {
+public class GUI extends ContainerHolder implements InventoryHolder {
 
     public static PatternGUIBuilder ofPattern(Collection<String> pattern) {
         return ofPattern(pattern.toArray(new String[0]));
@@ -223,12 +222,6 @@ public class GUI implements InventoryHolder, Iterable<Element> {
 
     public Inventory getHandle() {
         return inventory;
-    }
-
-    @NotNull
-    @Override
-    public Iterator<Element> iterator() {
-        return container.iterator();
     }
 
     public interface NormalEditHandler {
