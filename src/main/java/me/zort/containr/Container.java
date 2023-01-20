@@ -2,6 +2,7 @@ package me.zort.containr;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.internal.util.Pair;
 import org.bukkit.entity.Player;
@@ -9,6 +10,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -19,6 +22,7 @@ public abstract class Container implements ContainerComponent {
 
     private final Map<Integer, Container> containers;
     private final Map<Integer, Element> elements;
+    private final List<ComponentSource> attachedSources;
 
     private Tetragon selection;
     @Getter
@@ -29,13 +33,18 @@ public abstract class Container implements ContainerComponent {
     }
 
     protected Container(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
-        this.containers = Maps.newConcurrentMap();
-        this.elements = Maps.newConcurrentMap();
+        this.containers = new ConcurrentHashMap<>();
+        this.elements = new ConcurrentHashMap<>();
+        this.attachedSources = new CopyOnWriteArrayList<>();
         this.parent = null;
         this.selection = new Tetragon(corner1, corner2);
     }
 
-    //public abstract Map<Integer, Element> content();
+    public abstract <T extends Element> Map<Integer, T> content(Class<T> clazz);
+    public abstract boolean appendContainer(Container container);
+    public void init() {}
+    public void refresh(Player player) {}
+
     public Map<Integer, Element> content(List<Class<? extends Element>> classes) {
         Map<Integer, Element> res = Maps.newHashMap();
         if(classes != null) {
@@ -45,14 +54,25 @@ public abstract class Container implements ContainerComponent {
         }
         return res;
     }
-    public abstract <T extends Element> Map<Integer, T> content(Class<T> clazz);
-    public abstract boolean appendContainer(Container container);
-    public void init() {}
-    public void refresh(Player player) {}
 
     public void clear() {
         getContainers().clear();
         getElements().clear();
+    }
+
+    public void attachSource(ComponentSource source) {
+        this.attachedSources.add(source);
+    }
+
+    protected void registerSources() {
+        LocalComponentTunnel componentTunnel = new LocalComponentTunnel(this);
+        for (ComponentSource source : this.attachedSources) {
+            source.enable(componentTunnel);
+        }
+    }
+
+    protected void unregisterSources() {
+        this.attachedSources.forEach(ComponentSource::disable);
     }
 
     public boolean setContainer(int positionRelativeIndex, @NotNull Container container) {
@@ -208,6 +228,16 @@ public abstract class Container implements ContainerComponent {
         return searchContainers(containerClass).findFirst().orElse(-1);
     }
 
+    public List<Container> getContainers(boolean deep) {
+        List<Container> containers = new ArrayList<>(getContainers().values());
+        if(deep)
+            containers.addAll(containers
+                    .stream()
+                    .flatMap(c -> c.getContainers(true).stream())
+                    .collect(Collectors.toList()));
+        return containers;
+    }
+
     public int[] getEmptyElementSlots() {
         return IntStream.range(0, getSelection().size())
                 .filter(i -> !getElements().containsKey(i))
@@ -269,6 +299,24 @@ public abstract class Container implements ContainerComponent {
     @Override
     public Iterator<Element> iterator() {
         return elements.values().iterator();
+    }
+
+    @RequiredArgsConstructor
+    protected static class LocalComponentTunnel implements ComponentTunnel {
+        private final ContainerComponent component;
+
+        @Override
+        public void send(ContainerComponent container) {
+            if(!(container instanceof Container)) // TODO: Accept every ContainerComponent.
+                throw new IllegalArgumentException("Container must be instance of Container!");
+
+            component.appendContainer((Container) container);
+        }
+
+        @Override
+        public void send(Element element) {
+            component.appendElement(element);
+        }
     }
 
 }

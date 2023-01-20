@@ -101,6 +101,11 @@ public abstract class ContainerHolder implements ContainerComponent {
     }
 
     @Override
+    public List<Container> getContainers(boolean deep) {
+        return getContainer().getContainers(deep);
+    }
+
+    @Override
     public int[] getEmptyElementSlots() {
         return getContainer().getEmptyElementSlots();
     }

@@ -94,7 +94,9 @@ public class GUI extends ContainerHolder implements InventoryHolder {
             ((Rebuildable) this).rebuild();
         } else if(initial) build(p);
         GUIRepository.add(p.getName(), this);
+
         if(update) update(p);
+
         Bukkit.getScheduler().runTaskLater(Bukkit.getServer().getPluginManager().getPlugins()[0], () -> {
             if(p.isOnline()) {
                 LinkedList<GUI> temp = new LinkedList<>(
@@ -110,21 +112,24 @@ public class GUI extends ContainerHolder implements InventoryHolder {
     }
 
     public void close(Player p) {
-        GUIRepository.remove(p.getName());
-        p.closeInventory();
-        handleClose(p, CloseReason.BY_METHOD);
+        close(p, CloseReason.BY_METHOD);
     }
 
-    public void handleClose(Player p, CloseReason reason) {
-        if(closeHandlers.containsKey(reason)) {
-            closeHandlers.get(reason).forEach(handler -> {
-                try {
-                    handler.accept(p);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+    public void close(Player p, CloseReason reason) {
+        GUIRepository.remove(p.getName());
+        p.closeInventory();
+
+        List<Consumer<Player>> handlers = closeHandlers.get(reason);
+        if(handlers == null)
+            return;
+
+        handlers.forEach(handler -> {
+            try {
+                handler.accept(p);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void update(Player p) {

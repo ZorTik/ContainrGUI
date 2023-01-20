@@ -66,7 +66,7 @@ public class GUIListener implements Listener {
             gui = GUIRepository.remove(e.getPlayer().getName());
         }
         if(gui != null) {
-            gui.handleClose((Player) e.getPlayer(), GUI.CloseReason.BY_PLAYER);
+            gui.close((Player) e.getPlayer(), GUI.CloseReason.BY_PLAYER);
         }
         if(history != null) {
             history.clear();

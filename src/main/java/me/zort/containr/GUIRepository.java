@@ -2,6 +2,7 @@ package me.zort.containr;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -71,10 +72,15 @@ public final class GUIRepository {
             PREV_GUIS.get(nick).add(gui);
         }
         OPENED_GUIS.put(nick, gui);
+
+        gui.getContainers(true).forEach(Container::registerSources);
     }
 
     public static GUI remove(String nick) {
-        return OPENED_GUIS.remove(nick);
+        GUI gui = OPENED_GUIS.remove(nick);
+        if(gui != null)
+            gui.getContainers(true).forEach(Container::unregisterSources);
+        return gui;
     }
 
 }

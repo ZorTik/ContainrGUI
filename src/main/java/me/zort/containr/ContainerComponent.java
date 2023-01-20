@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-public interface ContainerComponent extends Iterable<Element> {
+public interface ContainerComponent extends Component, Iterable<Element> {
 
     <T extends Element> Map<Integer, T> content(Class<T> clazz);
     boolean appendContainer(Container container);
@@ -30,6 +30,7 @@ public interface ContainerComponent extends Iterable<Element> {
     Optional<Pair<Container, Element>> findElementById(String id);
     IntStream searchContainers(Class<? extends Container> containerClass);
     int searchContainer(Class<? extends Container> containerClass);
+    List<Container> getContainers(boolean deep);
     int[] getEmptyElementSlots();
     boolean isFreeSlot(int slot);
     List<Container> innerContainers();
