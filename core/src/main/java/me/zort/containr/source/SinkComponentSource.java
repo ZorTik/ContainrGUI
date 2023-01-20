@@ -2,9 +2,7 @@ package me.zort.containr.source;
 
 import me.zort.containr.*;
 import me.zort.containr.exception.InvalidComponentException;
-import reactor.core.publisher.*;
-
-import java.util.function.Consumer;
+import reactor.core.publisher.Sinks;
 
 import static reactor.core.publisher.Sinks.many;
 
@@ -36,18 +34,7 @@ public class SinkComponentSource implements ComponentSource {
         if(completed)
             return false;
 
-        attachedSink.asFlux().subscribe(handleEmitDecorator(tunnel));
-        return true;
-    }
-
-    @Override
-    public void disable() {
-        if(!completed && attachedSink.tryEmitComplete().isSuccess())
-            completed = true;
-    }
-
-    private static Consumer<Component> handleEmitDecorator(ComponentTunnel tunnel) {
-        return (component) -> {
+        attachedSink.asFlux().subscribe((component) -> {
             if (component instanceof Element) {
                 tunnel.send((Element) component);
             } else if(component instanceof ContainerComponent) {
@@ -55,7 +42,14 @@ public class SinkComponentSource implements ComponentSource {
             } else {
                 throw new InvalidComponentException(component);
             }
-        };
+        });
+        return true;
+    }
+
+    @Override
+    public void disable() {
+        if(!completed && attachedSink.tryEmitComplete().isSuccess())
+            completed = true;
     }
 
     public interface ComponentMapper<T> {
