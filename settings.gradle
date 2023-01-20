@@ -1,2 +1,6 @@
 rootProject.name = 'ContainrGUI'
+include 'core'
+include 'examples'
+project(':core').projectDir = file('core')
+project(':examples').projectDir = file('examples')
 

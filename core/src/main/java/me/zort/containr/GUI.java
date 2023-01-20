@@ -1,11 +1,11 @@
 package me.zort.containr;
 
 import com.google.common.collect.Maps;
+import me.zort.containr.builder.PatternGUIBuilder;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import me.zort.containr.builder.PatternGUIBuilder;
 import me.zort.containr.internal.util.Containers;
 import me.zort.containr.internal.util.NBT;
 import me.zort.containr.internal.util.Pair;
