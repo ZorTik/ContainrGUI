@@ -4,8 +4,10 @@ import lombok.Getter;
 import me.zort.containr.Element;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
 public abstract class ToggleableElement extends Element {
 
     @Getter

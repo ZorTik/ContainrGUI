@@ -17,6 +17,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -115,6 +116,7 @@ public class GUI extends ContainerHolder implements InventoryHolder {
         close(p, CloseReason.BY_METHOD);
     }
 
+    @ApiStatus.Internal
     public void close(Player p, CloseReason reason) {
         GUIRepository.remove(p.getName());
         p.closeInventory();
@@ -169,11 +171,11 @@ public class GUI extends ContainerHolder implements InventoryHolder {
         }
     }
 
-    public void clearInventory() {
+    private void clearInventory() {
         clearInventory(true);
     }
 
-    public void clearInventory(boolean keepNormalItems) {
+    private void clearInventory(boolean keepNormalItems) {
         Map<Integer, ItemStack> normalItems = normalItemSlots
                 .stream()
                 .filter(i -> inventory.getItem(i) != null)

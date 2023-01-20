@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public abstract class AsyncAnimatedGUI extends AnimatedGUI {
 
     private final ExecutorService executorService;

@@ -3,6 +3,7 @@ package me.zort.containr;
 import com.google.common.collect.Maps;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.internal.util.Pair;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,56 +23,28 @@ public class PagedContainer extends Container {
     }
 
     public void switchPage(int pageIndex) {
+        int oldPageIndex = currentPageIndex;
         this.currentPageIndex = pageIndex;
+
+        onPageSwitch(oldPageIndex, currentPageIndex);
     }
 
     public boolean nextPage() {
         if(isLastPage()) return false;
         switchPage(getCurrentPageIndex() + 1);
-        onPageSwitch(getCurrentPage() - 1, getCurrentPage());
+        //onPageSwitch(getCurrentPage() - 1, getCurrentPage());
         return true;
     }
 
     public boolean previousPage() {
         if(isFirstPage()) return false;
         switchPage(getCurrentPageIndex() - 1);
-        onPageSwitch(getCurrentPage() + 1, getCurrentPage());
+        //onPageSwitch(getCurrentPage() + 1, getCurrentPage());
         return true;
     }
 
+    @ApiStatus.OverrideOnly
     public void onPageSwitch(int before, int after) {}
-
-    public boolean isFirstPage() {
-        return currentPageIndex <= 0;
-    }
-
-    public boolean isLastPage() {
-        return currentPageIndex >= getMaxPageIndex();
-    }
-
-    public int getTotalPages() {
-        return getMaxPageIndex() + 1;
-    }
-
-    public int getMaxPageIndex() {
-        /*int maxAttachedSlot = maxAttachedSlot();
-        int pageIndex = 0;
-        while(convertElementPosToRealPos(pageIndex * getSelection().size()) < maxAttachedSlot) {
-            pageIndex++;
-        }*/
-        return Math.max(
-                getPageIndexByRelativePos(getContainers().keySet().stream().mapToInt(i -> i).max().orElse(0)),
-                getPageIndexByRelativePos(getElements().keySet().stream().mapToInt(i -> i).max().orElse(0))
-        );
-    }
-
-    public int getCurrentPageIndex() {
-        return currentPageIndex;
-    }
-
-    public int getCurrentPage() {
-        return getCurrentPageIndex() + 1;
-    }
 
     @Override
     public boolean appendContainer(Container container) {
@@ -145,6 +118,33 @@ public class PagedContainer extends Container {
             }
         });
         return result;
+    }
+
+    public boolean isFirstPage() {
+        return currentPageIndex <= 0;
+    }
+
+    public boolean isLastPage() {
+        return currentPageIndex >= getMaxPageIndex();
+    }
+
+    public int getTotalPages() {
+        return getMaxPageIndex() + 1;
+    }
+
+    public int getMaxPageIndex() {
+        return Math.max(
+                getPageIndexByRelativePos(getContainers().keySet().stream().mapToInt(i -> i).max().orElse(0)),
+                getPageIndexByRelativePos(getElements().keySet().stream().mapToInt(i -> i).max().orElse(0))
+        );
+    }
+
+    public int getCurrentPageIndex() {
+        return currentPageIndex;
+    }
+
+    public int getCurrentPage() {
+        return getCurrentPageIndex() + 1;
     }
 
     protected boolean isOnThisPage(int relativePos) {

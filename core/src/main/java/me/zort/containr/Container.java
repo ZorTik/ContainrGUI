@@ -1,5 +1,6 @@
 package me.zort.containr;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,7 @@ public abstract class Container implements ContainerComponent {
         getElements().clear();
     }
 
+    @Beta
     public void attachSource(ComponentSource source) {
         this.attachedSources.add(source);
     }

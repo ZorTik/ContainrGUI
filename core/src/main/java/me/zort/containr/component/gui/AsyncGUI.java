@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
+@Deprecated
 public abstract class AsyncGUI extends GUI {
 
     private final ExecutorService executorService;
