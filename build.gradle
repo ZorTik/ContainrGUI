@@ -9,25 +9,29 @@ compileJava.options.encoding = 'UTF-8'
 group = 'com.github.ZorTik'
 version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-    maven {
-        name = 'spigotmc-repo'
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-    maven {
-        name = 'NBT-API'
-        url = 'https://repo.codemc.org/repository/maven-public/'
-    }
-    maven {
-        name = 'minecraft'
-        url = 'https://libraries.minecraft.net/'
+allprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'spigotmc-repo'
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+        maven {
+            name = 'NBT-API'
+            url = 'https://repo.codemc.org/repository/maven-public/'
+        }
+        maven {
+            name = 'minecraft'
+            url = 'https://libraries.minecraft.net/'
+        }
     }
 }
 
 dependencies {
+    implementation project(':core')
     implementation group: 'org.jetbrains', name: 'annotations', version: '20.1.0'
-    implementation 'de.tr7zw:item-nbt-api:2.10.0'
+    implementation 'de.tr7zw:item-nbt-api:2.11.1'
+    compileOnly 'io.projectreactor:reactor-core:3.5.2' // Should be included in using projects.
     compileOnly 'commons-lang:commons-lang:2.6'
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
     compileOnly 'com.mojang:authlib:1.5.21'
@@ -37,8 +41,8 @@ dependencies {
 
 shadowJar {
     archiveName = "$baseName-$version.$extension"
-    relocate('de.tr7zw.changeme', 'libs.de.tr7zw')
-    relocate('de.tr7zw.annotations', 'libs.de.tr7zw.annotations')
+    relocate('de.tr7zw.changeme', 'me.zort.containr.libs.de.tr7zw')
+    relocate('de.tr7zw.annotations', 'me.zort.containr.libs.de.tr7zw.annotations')
 }
 
 jar {
@@ -51,28 +55,35 @@ artifacts {
     archives shadowJar
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = 'com.github.ZorTik'
-            artifactId = 'ContainrGUI'
-            version = '1.0'
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
-            from components.java
-            pom {
-                name = 'ContainrGUI'
-                description = 'An Advanced GUI library for Spigot.'
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://raw.githubusercontent.com/ZorTik/ContainrGUI/master/LICENSE'
+    compileJava.options.encoding = 'UTF-8'
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId = 'com.github.ZorTik'
+                artifactId = 'ContainrGUI'
+                version = '1.0'
+
+                from components.java
+                pom {
+                    name = 'ContainrGUI'
+                    description = 'An Advanced GUI library for Spigot.'
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = 'https://raw.githubusercontent.com/ZorTik/ContainrGUI/master/LICENSE'
+                        }
                     }
-                }
-                developers {
-                    developer {
-                        id = 'zort'
-                        name = 'ZorTik'
-                        email = 'zortlegit@gmail.com'
+                    developers {
+                        developer {
+                            id = 'zort'
+                            name = 'ZorTik'
+                            email = 'zortlegit@gmail.com'
+                        }
                     }
                 }
             }
