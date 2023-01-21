@@ -16,6 +16,11 @@ public abstract class ContainerHolder implements ContainerComponent {
     }
 
     @Override
+    public void attachSource(ComponentSource source) {
+        getContainer().attachSource(source);
+    }
+
+    @Override
     public boolean appendContainer(Container container) {
         return getContainer().appendContainer(container);
     }

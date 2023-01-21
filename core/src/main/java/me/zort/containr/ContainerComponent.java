@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 public interface ContainerComponent extends Component, Iterable<Element> {
 
     <T extends Element> Map<Integer, T> content(Class<T> clazz);
+    void attachSource(ComponentSource source);
     boolean appendContainer(Container container);
     boolean setContainer(int positionRelativeIndex, @NotNull Container container);
     boolean setContainer(@NotNull Container container, int positionRelativeIndex);
