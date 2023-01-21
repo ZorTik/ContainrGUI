@@ -16,8 +16,8 @@ public class EvtBus<T> {
         return uuid;
     }
 
-    public void off(UUID uuid) {
-        entries.remove(uuid);
+    public boolean off(UUID uuid) {
+        return entries.remove(uuid) != null;
     }
 
     public void emit(T eventObject) {

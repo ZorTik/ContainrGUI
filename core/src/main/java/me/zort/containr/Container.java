@@ -56,7 +56,9 @@ public abstract class Container implements ContainerComponent {
     }
 
     public abstract boolean appendContainer(Container container);
+    @ApiStatus.OverrideOnly
     public void init() {}
+    @ApiStatus.OverrideOnly
     public void refresh(Player player) {}
 
     @ApiStatus.OverrideOnly

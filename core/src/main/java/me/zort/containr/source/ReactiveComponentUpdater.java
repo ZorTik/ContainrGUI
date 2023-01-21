@@ -31,7 +31,7 @@ public class ReactiveComponentUpdater implements ComponentSource {
         Container container = obtainContainer(tunnel);
         if (container != null)
             for (UUID uuid : registeredEvents) {
-                container.getEventBus().off(uuid);
+                if(container.getEventBus().off(uuid)) registeredEvents.remove(uuid);
             }
     }
 
