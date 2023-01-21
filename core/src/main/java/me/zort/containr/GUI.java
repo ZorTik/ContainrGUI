@@ -23,6 +23,13 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * A GUI is a main entrance of a menu.
+ * It collects contents from its main Container and renders them on
+ * the final Minecraft GUI.
+ *
+ * @author ZorTik
+ */
 @Getter
 public class GUI extends ContainerHolder implements InventoryHolder {
 

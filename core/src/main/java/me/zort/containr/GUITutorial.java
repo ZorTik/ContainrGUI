@@ -14,6 +14,14 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * A very old utility for creating interactive tutorials inside GUI.
+ * This class is not recommended to use because it has not been
+ * tested, and it's now deprecated.
+ *
+ * @param <T> The type of the GUI.
+ * @author ZorTik
+ */
 @Deprecated
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode

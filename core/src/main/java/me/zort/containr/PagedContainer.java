@@ -3,6 +3,7 @@ package me.zort.containr;
 import com.google.common.collect.Maps;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.internal.util.Pair;
+import me.zort.containr.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +11,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * A paged container implementation.
+ * There is no need of manually creating the pages. This container
+ * simply represents almost infinite space for adding elements and
+ * containers. When the page is full, a new one is automatically
+ * calculated.
+ *
+ * @author ZorTik
+ */
 public class PagedContainer extends Container {
 
     private int currentPageIndex = 0;
