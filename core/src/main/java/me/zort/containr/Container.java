@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.internal.util.Pair;
+import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ public abstract class Container implements ContainerComponent {
     private final Map<Integer, Container> containers;
     private final Map<Integer, Element> elements;
     private final List<ComponentSource> attachedSources;
+    private final ComponentTunnel componentTunnel;
 
     private Tetragon selection;
     @Getter
@@ -37,6 +39,7 @@ public abstract class Container implements ContainerComponent {
         this.containers = new ConcurrentHashMap<>();
         this.elements = new ConcurrentHashMap<>();
         this.attachedSources = new CopyOnWriteArrayList<>();
+        this.componentTunnel = new LocalComponentTunnel(this);
         this.parent = null;
         this.selection = new Tetragon(corner1, corner2);
     }
@@ -67,14 +70,15 @@ public abstract class Container implements ContainerComponent {
     }
 
     protected void registerSources() {
-        LocalComponentTunnel componentTunnel = new LocalComponentTunnel(this);
         for (ComponentSource source : this.attachedSources) {
             source.enable(componentTunnel);
         }
     }
 
     protected void unregisterSources() {
-        this.attachedSources.forEach(ComponentSource::disable);
+        for (ComponentSource source : this.attachedSources) {
+            source.disable(componentTunnel);
+        }
     }
 
     public boolean setContainer(int positionRelativeIndex, @NotNull Container container) {
@@ -306,6 +310,8 @@ public abstract class Container implements ContainerComponent {
     @RequiredArgsConstructor
     protected static class LocalComponentTunnel implements ComponentTunnel {
         private final ContainerComponent component;
+        @Getter
+        private final String id = RandomStringUtils.randomAlphanumeric(8);
 
         @Override
         public void send(ContainerComponent container) {

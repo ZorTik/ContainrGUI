@@ -1,12 +1,12 @@
 package me.zort.containr.source;
 
-import me.zort.containr.*;
-import me.zort.containr.exception.InvalidComponentException;
+import me.zort.containr.Component;
+import me.zort.containr.ComponentTunnel;
 import reactor.core.publisher.Sinks;
 
 import static reactor.core.publisher.Sinks.many;
 
-public class SinkComponentSource implements ComponentSource {
+public class SinkComponentSource extends SimpleComponentSource {
 
     private final Sinks.Many<Component> attachedSink;
     private Sinks.EmitFailureHandler emitFailureHandler;
@@ -23,6 +23,8 @@ public class SinkComponentSource implements ComponentSource {
     public SinkComponentSource(Sinks.Many<Component> sink) {
         this.attachedSink = sink;
         this.completed = false;
+
+        attachedSink.asFlux().subscribe(this::publish);
     }
 
     public void setEmitFailureHandler(Sinks.EmitFailureHandler emitFailureHandler) {
@@ -34,21 +36,13 @@ public class SinkComponentSource implements ComponentSource {
         if(completed)
             return false;
 
-        attachedSink.asFlux().subscribe((component) -> {
-            if (component instanceof Element) {
-                tunnel.send((Element) component);
-            } else if(component instanceof ContainerComponent) {
-                tunnel.send((ContainerComponent) component);
-            } else {
-                throw new InvalidComponentException(component);
-            }
-        });
-        return true;
+        return super.enable(tunnel);
     }
 
     @Override
-    public void disable() {
-        if(!completed && attachedSink.tryEmitComplete().isSuccess())
+    public void disable(ComponentTunnel tunnel) {
+        super.disable(tunnel);
+        if(!completed && getTunnels().isEmpty() && attachedSink.tryEmitComplete().isSuccess())
             completed = true;
     }
 
