@@ -10,6 +10,7 @@ public interface ComponentTunnel {
 
     void send(ContainerComponent container);
     void send(Element element);
+    void clear();
     String getId();
 
     default void send(Component component) {

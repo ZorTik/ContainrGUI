@@ -343,10 +343,14 @@ public abstract class Container implements ContainerComponent {
 
             component.appendContainer((Container) container);
         }
-
         @Override
         public void send(Element element) {
             component.appendElement(element);
+        }
+
+        @Override
+        public void clear() {
+            component.clear();
         }
     }
 

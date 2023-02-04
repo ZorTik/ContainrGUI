@@ -42,5 +42,6 @@ public interface ContainerComponent extends Component, Iterable<Element> {
     boolean isFreeSlot(int slot);
     List<Container> innerContainers();
     List<Element> innerElements();
+    void clear();
 
 }
