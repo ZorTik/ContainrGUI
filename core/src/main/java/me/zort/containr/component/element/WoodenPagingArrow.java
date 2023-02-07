@@ -33,6 +33,7 @@ public class WoodenPagingArrow extends Element {
             localContainer.previousPage();
         else
             localContainer.nextPage();
+        info.getGui().update(info.getPlayer());
     }
 
     @Override
