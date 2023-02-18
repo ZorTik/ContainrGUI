@@ -1,8 +1,11 @@
-# ContainrGUI [![](https://jitpack.io/v/ZorTik/ContainrGUI.svg)](https://jitpack.io/#ZorTik/ContainrGUI)
-An advanced GUI repostiory that will help you build fast, responsible, animated menus. Let's imagine almost unlimited GUI possibilities. This all came true now!
-Main inspiration for this project was container system from CSS Bootstrap.
+<div align="center">
+<!-- Image -->
 
-> Ultimate GUI solution with animated GUIs!
+# ContainrGUI
+An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imagine almost unlimited GUI possibilities.<br>
+
+![Badge](https://img.shields.io/jitpack/version/com.github.ZorTik/ContainrGUI?style=for-the-badge) ![Badge](https://img.shields.io/github/license/ZorTik/ContainrGUI?style=for-the-badge)
+</div>
 
 [New: Patterns](https://github.com/ZorTik/ContainrGUI/blob/master/src/main/java/me/zort/containr/examples/PatternExample.java)
 
