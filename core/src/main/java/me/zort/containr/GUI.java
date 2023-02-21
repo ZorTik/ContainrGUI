@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @author ZorTik
  */
 @Getter
-public class GUI extends ContainerHolder implements InventoryHolder {
+public abstract class GUI extends ContainerHolder implements InventoryHolder {
 
     public static PatternGUIBuilder ofPattern(Collection<String> pattern) {
         return ofPattern(pattern.toArray(new String[0]));
@@ -77,7 +77,8 @@ public class GUI extends ContainerHolder implements InventoryHolder {
     }
 
     // User Input
-    public void build(Player p) {}
+    @ApiStatus.OverrideOnly
+    public abstract void build(Player p);
 
     /**
      * Adds handler that is invoked when normal item slot changes.
