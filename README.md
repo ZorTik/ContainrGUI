@@ -1,7 +1,7 @@
 <div align="center">
 <!-- Image -->
 
-![logo_black_nobcg](https://user-images.githubusercontent.com/67344817/221914079-d2b0aa8d-4895-4b11-9d7a-7f338e56cb5f.png)
+<img src="https://user-images.githubusercontent.com/67344817/221914079-d2b0aa8d-4895-4b11-9d7a-7f338e56cb5f.png" width=150 height=150>
 
 # Containr GUI
 An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imagine almost unlimited GUI possibilities.<br>
