@@ -17,12 +17,10 @@ import java.util.function.Predicate;
 
 public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
-    private final int rows;
-
     private final String[] pattern;
     private final Map<Integer, Container> containers;
     private final Map<Integer, Element> elements;
-
+    private final int rows;
     private String title;
     private Element filler;
 
@@ -50,14 +48,14 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
-        for(LocalContainerMatcher.SizeMatch match : new LocalContainerMatcher(pattern, symbol).match()) {
+        for(PatternContainerMatcher.SizeMatch match : new PatternContainerMatcher(pattern, symbol).match()) {
             T container = containerFactory.create(match.getSize()[0], match.getSize()[1]);
             putContainerMatch(match, container);
         }
         return this;
     }
 
-    private void putContainerMatch(LocalContainerMatcher.SizeMatch match, Container container) {
+    private void putContainerMatch(PatternContainerMatcher.SizeMatch match, Container container) {
         this.containers.put(match.getIndex(), container);
     }
 
@@ -176,18 +174,18 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     }
 
-    private static class LocalContainerMatcher {
+    public static class PatternContainerMatcher {
 
         private final String[] pattern;
-        private final String symbol;
+        private final char symbol;
 
-        public LocalContainerMatcher(String[] pattern, String symbol) {
+        public PatternContainerMatcher(String[] pattern, String symbol) {
             checkSymbol(symbol);
             this.pattern = pattern;
-            this.symbol = symbol;
+            this.symbol = symbol.charAt(0);
         }
 
-        public List<SizeMatch> match() {
+        public List<SizeMatch> match() { // TODO: Unit tests
             Findings findings = new Findings();
 
             int lineIndex = 0;
@@ -197,7 +195,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
                 int blobStart = -1;
                 for(int i = 0; i < chars.length; i++) {
                     char c = chars[i];
-                    if(c != symbol.charAt(0)) continue;
+                    if(c != symbol) continue;
 
                     if(i == 0 || c != chars[i - 1]) {
                         blobStart = i;
@@ -247,7 +245,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
         @AllArgsConstructor
         @Getter
-        private static class SizeMatch {
+        public static class SizeMatch {
             private final int[] size;
             private final int index;
 
