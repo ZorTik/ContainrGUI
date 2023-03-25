@@ -9,6 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+/**
+ * Container interface that represents a container component that does not
+ * necessarily have to be a {@link Container} implementation.
+ *
+ * @author ZorTik
+ */
 public interface ContainerComponent extends Component, Iterable<Element> {
 
     <T extends Element> Map<Integer, T> content(Class<T> clazz);
@@ -36,5 +42,6 @@ public interface ContainerComponent extends Component, Iterable<Element> {
     boolean isFreeSlot(int slot);
     List<Container> innerContainers();
     List<Element> innerElements();
+    void clear();
 
 }

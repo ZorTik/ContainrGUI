@@ -10,6 +10,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * A builder of element that is used for quicker creation
+ * of basic elements. This was necessary because very first
+ * way of creating elements via inheritance was very slow.
+ *
+ * @author ZorTik
+ */
 public class SimpleElementBuilder {
 
     public static SimpleElementBuilder b() {

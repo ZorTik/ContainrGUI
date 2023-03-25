@@ -4,8 +4,10 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.zort.containr.evt.EvtBus;
 import me.zort.containr.geometry.Tetragon;
 import me.zort.containr.internal.util.Pair;
+import me.zort.containr.util.Util;
 import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -19,6 +21,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * A container is a component that can contain other components.
+ * It dynamically provides contents calculated to Minecraft GUI
+ * coordinates.
+ *
+ * @author ZorTik
+ */
 @Getter
 public abstract class Container implements ContainerComponent {
 
@@ -26,6 +35,7 @@ public abstract class Container implements ContainerComponent {
     private final Map<Integer, Element> elements;
     private final List<ComponentSource> attachedSources;
     private final ComponentTunnel componentTunnel;
+    private final EvtBus<LocalEventInterface> eventBus;
 
     private Tetragon selection;
     @Getter
@@ -40,14 +50,27 @@ public abstract class Container implements ContainerComponent {
         this.elements = new ConcurrentHashMap<>();
         this.attachedSources = new CopyOnWriteArrayList<>();
         this.componentTunnel = new LocalComponentTunnel(this);
+        this.eventBus = new EvtBus<>();
         this.parent = null;
         this.selection = new Tetragon(corner1, corner2);
     }
 
-    public abstract <T extends Element> Map<Integer, T> content(Class<T> clazz);
     public abstract boolean appendContainer(Container container);
+    @ApiStatus.OverrideOnly
     public void init() {}
+    @ApiStatus.OverrideOnly
     public void refresh(Player player) {}
+
+    @ApiStatus.OverrideOnly
+    public <T extends Element> Map<Integer, T> content(Class<T> clazz) {
+        Map<Integer, T> content = new HashMap<>();
+
+        // Emit event locally. Subscribers can modify the content map.
+        Event.UpdateEvent event = new Event.UpdateEvent(this, content);
+        eventBus.emit(event);
+
+        return content;
+    }
 
     public Map<Integer, Element> content(List<Class<? extends Element>> classes) {
         Map<Integer, Element> res = Maps.newHashMap();
@@ -308,9 +331,9 @@ public abstract class Container implements ContainerComponent {
     }
 
     @RequiredArgsConstructor
-    protected static class LocalComponentTunnel implements ComponentTunnel {
+    @Getter
+    public static class LocalComponentTunnel implements ComponentTunnel {
         private final ContainerComponent component;
-        @Getter
         private final String id = RandomStringUtils.randomAlphanumeric(8);
 
         @Override
@@ -320,11 +343,40 @@ public abstract class Container implements ContainerComponent {
 
             component.appendContainer((Container) container);
         }
-
         @Override
         public void send(Element element) {
             component.appendElement(element);
         }
+
+        @Override
+        public void clear() {
+            component.clear();
+        }
+    }
+
+    private interface LocalEventInterface {
+        Container getContainer();
+    }
+
+    public static final class Event {
+
+        @SuppressWarnings("unchecked, rawtypes")
+        @RequiredArgsConstructor
+        public static class UpdateEvent implements LocalEventInterface {
+            @Getter
+            private final Container container;
+            private final Map content;
+
+            public void append(Element element) {
+                int index = content.keySet()
+                        .stream()
+                        .mapToInt(o -> (int) o)
+                        .max().orElse(-1) + 1;
+                content.put(index, element);
+            }
+
+        }
+
     }
 
 }

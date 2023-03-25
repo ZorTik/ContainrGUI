@@ -135,4 +135,9 @@ public abstract class ContainerHolder implements ContainerComponent {
     public Iterator<Element> iterator() {
         return getContainer().iterator();
     }
+
+    @Override
+    public void clear() {
+        getContainer().clear();
+    }
 }

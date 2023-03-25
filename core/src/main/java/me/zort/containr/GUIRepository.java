@@ -54,6 +54,13 @@ public final class GUIRepository {
     }
 
     public static boolean hasOpen(Player p) {
+        try {
+            if (!(p.getOpenInventory().getTopInventory().getHolder() instanceof GUI))
+                return false;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
         return hasOpen(p.getName());
     }
 

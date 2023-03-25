@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,13 +34,14 @@ public class ItemBuilder {
     }
 
     public static ItemBuilder newBuilder(ItemStack origin) {
+        List<String> lore = origin.getItemMeta().getLore() != null ? origin.getItemMeta().getLore() : new ArrayList<>();
         return new ItemBuilder()
                 .withType(origin.getType())
                 .withData(origin.getData().getData())
                 .withAmount(origin.getAmount())
                 .withName(origin.getItemMeta().getDisplayName())
                 .withLore()
-                .lines(origin.getItemMeta().getLore())
+                .lines(lore)
                 .and()
                 .withEnchantments(origin.getEnchantments());
     }

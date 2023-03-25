@@ -31,4 +31,10 @@ public class SimpleComponentSource implements ComponentSource {
         }
         return count;
     }
+
+    public void clear() {
+        for (ComponentTunnel tunnel : tunnels) {
+            tunnel.clear();
+        }
+    }
 }

@@ -1,5 +1,6 @@
-package me.zort.containr;
+package me.zort.containr.util;
 
+import me.zort.containr.Container;
 import me.zort.containr.geometry.Tetragon;
 
 public final class Util {
