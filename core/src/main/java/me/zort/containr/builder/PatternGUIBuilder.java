@@ -8,6 +8,7 @@ import me.zort.containr.component.element.ItemElement;
 import me.zort.containr.component.gui.AnimatedGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +16,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class PatternGUIBuilder implements GUIBuilder<GUI> {
+import static com.google.common.base.Preconditions.checkArgument;
+
+public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     private final String[] pattern;
     private final Map<Integer, Container> containers;
@@ -24,8 +27,8 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     private String title;
     private Element filler;
 
-    public PatternGUIBuilder(String title, String[] pattern) {
-        Preconditions.checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
+    public PatternGUIBuilder(final String title, final String[] pattern) {
+        checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
         validatePatternWidth(pattern);
         this.title = title;
         this.rows = pattern.length;
@@ -35,19 +38,23 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.filler = null;
     }
 
-    public PatternGUIBuilder andTitle(String title) {
+    public final PatternGUIBuilder andTitle(String title) {
         this.title = title;
         return this;
     }
 
-    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
+    public final <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
+        Objects.requireNonNull(initFunction);
         return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
                 .size(xSize, ySize)
                 .init(initFunction)
                 .build());
     }
 
-    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
+    @SuppressWarnings("unused")
+    public final <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
+        Objects.requireNonNull(symbol);
+        Objects.requireNonNull(containerFactory);
         for(PatternContainerMatcher.SizeMatch match : new PatternContainerMatcher(pattern, symbol).match()) {
             T container = containerFactory.create(match.getSize()[0], match.getSize()[1]);
             putContainerMatch(match, container);
@@ -147,7 +154,9 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         private final List<Integer> availableIndexes;
         private int current;
 
-        public IndexIterator(String[] pattern, String symbol, Predicate<Integer> pred) {
+        public IndexIterator(@NotNull final String[] pattern,
+                             @NotNull final String symbol,
+                             @NotNull final Predicate<Integer> pred) {
             this.availableIndexes = new ArrayList<>();
             this.current = -1;
 
@@ -173,12 +182,13 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     }
 
-    public static class PatternContainerMatcher {
+    public static final class PatternContainerMatcher {
 
         private final String[] pattern;
         private final char symbol;
 
-        public PatternContainerMatcher(String[] pattern, String symbol) {
+        public PatternContainerMatcher(@NotNull final String[] pattern,
+                                       @NotNull final String symbol) {
             checkSymbol(symbol);
             this.pattern = pattern;
             this.symbol = symbol.charAt(0);
@@ -273,7 +283,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     private static void checkSymbol(String symbol) {
-        Preconditions.checkArgument(symbol.length() == 1, "The symbol must be a single character!");
+        checkArgument(symbol.length() == 1, "The symbol must be a single character!");
     }
 
     private static void validatePatternWidth(String[] pattern) {

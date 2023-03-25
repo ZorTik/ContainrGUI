@@ -24,7 +24,6 @@ public class SimpleElementBuilder {
     }
 
     private Supplier<ItemStack> itemSupplier = null;
-    private QuadConsumer<GUI, Container, Player, ClickType> action = (o1, o2, o3, o4) -> {};
     private Consumer<ContextClickInfo> clickConsumer = (info) -> {};
 
     public SimpleElementBuilder item(ItemStack item) {
@@ -38,7 +37,7 @@ public class SimpleElementBuilder {
 
     @Deprecated
     public SimpleElementBuilder action(QuadConsumer<GUI, Container, Player, ClickType> action) {
-        this.action = action;
+        this.clickConsumer = info -> action.accept(info.getGui(), info.getContainer(), info.getPlayer(), info.getClickType());
         return this;
     }
 
@@ -49,11 +48,6 @@ public class SimpleElementBuilder {
 
     public Element build() {
         return new Element() {
-            @NotNull
-            @Override
-            public QuadConsumer<GUI, Container, Player, ClickType> action() {
-                return action;
-            }
 
             @Override
             public void click(ContextClickInfo info) {
