@@ -21,6 +21,7 @@ public class TestCase1 {
 
     @Test
     public void testMatcher() {
+        System.out.println("Testing matcher...");
         String[] pattern = new String[]{
                 "#########",
                 "#PPPPPPP#",
