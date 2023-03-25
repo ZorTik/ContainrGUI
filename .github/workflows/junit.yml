@@ -13,15 +13,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Shutdown default MySQL
-        run: sudo service mysql stop
-      - name: Setup MySQL
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          mysql database: 'test'
-          mysql user: 'test'
-          mysql password: 'test'
-          mysql port: 3306
       - name: Gradle Build
         run: ./gradlew build -x test
       - name: Gradle Test
