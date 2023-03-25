@@ -5,6 +5,22 @@ plugins {
 group 'com.github.ZorTik'
 version '1.0-SNAPSHOT'
 
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'NBT-API'
+        url = 'https://repo.codemc.org/repository/maven-public/'
+    }
+    maven {
+        name = 'minecraft'
+        url = 'https://libraries.minecraft.net/'
+    }
+}
+
 dependencies {
     implementation group: 'org.jetbrains', name: 'annotations', version: '20.1.0'
     implementation 'de.tr7zw:item-nbt-api:2.11.1'
