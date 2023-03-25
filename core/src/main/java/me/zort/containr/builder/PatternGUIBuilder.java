@@ -150,21 +150,20 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         public IndexIterator(String[] pattern, String symbol, Predicate<Integer> pred) {
             this.availableIndexes = new ArrayList<>();
             this.current = -1;
-            int index = 0;
-            for(String line : pattern) {
+
+            for(int i = 0; i < pattern.length; i++) {
+                String line = pattern[i];
                 for(char c : line.toCharArray()) {
-                    if(c == symbol.charAt(0) && pred.test(index)) {
-                        availableIndexes.add(index);
+                    if(c == symbol.charAt(0) && pred.test(i)) {
+                        availableIndexes.add(i);
                     }
-                    index++;
                 }
             }
         }
 
         @Override
         public Integer next() {
-            current++;
-            return availableIndexes.get(current);
+            return availableIndexes.get(++current);
         }
 
         @Override
@@ -185,7 +184,7 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
             this.symbol = symbol.charAt(0);
         }
 
-        public List<SizeMatch> match() { // TODO: Unit tests
+        public List<SizeMatch> match() {
             Findings findings = new Findings();
 
             int lineIndex = 0;
@@ -223,18 +222,19 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
 
             public List<SizeMatch> findMatches() {
                 List<SizeMatch> matches = new ArrayList<>();
-
+                List<int[]> matchedEnds = new ArrayList<>();
                 for(int[] begin : begins) {
                     int[] end = ends.stream()
-                            .filter(e -> e[1] == begin[1])
+                            .filter(e -> e[1] == begin[1] && !matchedEnds.contains(e))
                             .min(Comparator.comparingInt(e -> e[0])).get();
+                    matchedEnds.add(end);
                     Optional<SizeMatch> matchOptional = matches.stream()
                             .filter(m -> m.matchesBeginEnd(begin, end))
                             .findFirst();
                     if(matchOptional.isPresent()) {
                         matchOptional.get().getSize()[1]++;
                     } else {
-                        matches.add(new SizeMatch(new int[] {end[0] + 1, end[1]}, (begin[1] * 9) + begin[0]));
+                        matches.add(new SizeMatch((begin[1] * 9) + begin[0], new int[] {(end[0] + 1) - begin[0], 1}));
                     }
                 }
 
@@ -246,8 +246,8 @@ public class PatternGUIBuilder implements GUIBuilder<GUI> {
         @AllArgsConstructor
         @Getter
         public static class SizeMatch {
-            private final int[] size;
             private final int index;
+            private final int[] size;
 
             public boolean matchesBeginEnd(int[] begin, int[] end) {
                 int x = this.getIndex() % 9;
