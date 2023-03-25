@@ -51,6 +51,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 shadowJar {
     archiveName = "$baseName-$version.$extension"
     relocate('de.tr7zw.changeme', 'me.zort.containr.libs.de.tr7zw')
