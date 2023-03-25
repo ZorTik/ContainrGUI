@@ -18,6 +18,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -33,11 +34,13 @@ import java.util.stream.Collectors;
 @Getter
 public abstract class GUI extends ContainerHolder implements InventoryHolder {
 
-    public static PatternGUIBuilder ofPattern(Collection<String> pattern) {
+    @NotNull
+    public static PatternGUIBuilder ofPattern(@NotNull final Collection<String> pattern) {
         return ofPattern(pattern.toArray(new String[0]));
     }
 
-    public static PatternGUIBuilder ofPattern(String[] pattern) {
+    @NotNull
+    public static PatternGUIBuilder ofPattern(@NotNull final String[] pattern) {
         return new PatternGUIBuilder("", pattern);
     }
 
@@ -51,12 +54,12 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
     private boolean frozen = false;
     private List<Integer> normalItemSlots;
     private boolean initial = true;
-    @Getter
+    @Getter(onMethod_ = @NotNull)
     private final List<NormalEditHandler> normalEditHandlers;
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(value = AccessLevel.PROTECTED, onMethod_ = @NotNull)
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
 
-    public GUI(String title, int rows) {
+    public GUI(@NotNull final String title, final int rows) {
         Inventory inventory = Bukkit.createInventory(this, rows * 9, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
@@ -66,7 +69,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
         setNormalItemSlots();
     }
 
-    public GUI(InventoryType type, String title) {
+    public GUI(final InventoryType type, @NotNull final String title) {
         Inventory inventory = Bukkit.createInventory(this, type, title);
         this.container = Containers.ofInv(inventory);
         this.inventory = inventory;
@@ -86,19 +89,19 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
      *
      * @param handler Handler to be invoked.
      */
-    public void onNormalEdit(NormalEditHandler handler) {
+    public final void onNormalEdit(@NotNull NormalEditHandler handler) {
         normalEditHandlers.add(handler);
     }
 
-    public void onClose(CloseReason reason, Consumer<Player> handler) {
+    public final void onClose(@NotNull CloseReason reason, @NotNull Consumer<Player> handler) {
         this.closeHandlers.computeIfAbsent(reason, k -> Collections.synchronizedList(new ArrayList<>())).add(handler);
     }
 
-    public void open(Player p) {
+    public void open(@NotNull Player p) {
         open(p, true);
     }
 
-    public void open(Player p, boolean update) {
+    public void open(@NotNull Player p, boolean update) {
         if(!initial && this instanceof Rebuildable) {
             ((Rebuildable) this).rebuild();
         } else if(initial) build(p);
@@ -183,7 +186,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
         clearInventory(true);
     }
 
-    private void clearInventory(boolean keepNormalItems) {
+    private void clearInventory(final boolean keepNormalItems) {
         Map<Integer, ItemStack> normalItems = normalItemSlots
                 .stream()
                 .filter(i -> inventory.getItem(i) != null)
@@ -194,7 +197,9 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
         }
     }
 
-    public boolean invokeElement(Player p, ClickType clickType, ItemStack clickedItem) {
+    public final boolean invokeElement(final Player p,
+                                       final ClickType clickType,
+                                       final ItemStack clickedItem) {
         if(clickedItem == null || clickedItem.getType().equals(Material.AIR)) return false;
         if(frozen) return false;
         NBTItem item = new NBTItem(clickedItem);
@@ -205,25 +210,25 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
         Pair<Container, Element> elementPair = elementOptional.get();
         Container container = elementPair.getKey();
         Element element = elementPair.getValue();
-        ContextClickInfo clickInfo = new ContextClickInfo(this, container, element, p, clickType);
-        element.action().accept(this, container, p, clickType);
-        element.click(clickInfo);
+        element.click(new ContextClickInfo(this, container, element, p, clickType));
         return true;
     }
 
-    public void setNormalItemSlots(Integer... slots) {
+    public final void setNormalItemSlots(Integer... slots) {
         setNormalItemSlots(Arrays.stream(slots).collect(Collectors.toList()));
     }
 
-    public void setNormalItemSlots(List<Integer> normalItemSlots) {
+    public final void setNormalItemSlots(List<Integer> normalItemSlots) {
         this.normalItemSlots = Collections.synchronizedList(normalItemSlots);
     }
 
-    public List<Integer> getNormalItemSlots() {
+    @NotNull
+    public final List<Integer> getNormalItemSlots() {
         return new ArrayList<>(normalItemSlots);
     }
 
-    public Map<Integer, ItemStack> getNormalItems() {
+    @NotNull
+    public final Map<Integer, ItemStack> getNormalItems() {
         Map<Integer, Element> content = container.content((List<Class<? extends Element>>) null);
         Map<Integer, ItemStack> items = Maps.newHashMap();
         for(int i = 0; i < inventory.getSize(); i++) {
@@ -235,7 +240,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
         return items;
     }
 
-    public Inventory getHandle() {
+    @NotNull
+    public final Inventory getHandle() {
         return inventory;
     }
 

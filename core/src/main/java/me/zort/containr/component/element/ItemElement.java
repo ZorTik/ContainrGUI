@@ -70,12 +70,6 @@ public class ItemElement extends Element {
         this.item = item;
     }
 
-    @NotNull
-    @Override
-    public QuadConsumer<GUI, Container, Player, ClickType> action() {
-        return (o1, o2, o3, o4) -> {};
-    }
-
     @Nullable
     @Override
     public ItemStack item(Player player) {

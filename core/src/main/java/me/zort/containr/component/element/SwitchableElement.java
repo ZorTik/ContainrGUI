@@ -3,6 +3,7 @@ package me.zort.containr.component.element;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.zort.containr.Container;
+import me.zort.containr.ContextClickInfo;
 import me.zort.containr.Element;
 import me.zort.containr.GUI;
 import me.zort.containr.internal.util.CyclicArrayList;
@@ -32,12 +33,13 @@ public abstract class SwitchableElement<T> extends Element {
     public abstract ItemStack option(@Nullable T option);
 
     @Override
-    @NotNull
-    public QuadConsumer<GUI, Container, Player, ClickType> action() {
-        return (o1, o2, o3, o4) -> {
-            next();
-            action(options.getCurrent().orElse(null)).accept(o1, o2, o3, o4);
-        };
+    public void click(ContextClickInfo info) {
+        next();
+        action(options.getCurrent().orElse(null)).accept(
+                info.getGui(),
+                info.getContainer(),
+                info.getPlayer(),
+                info.getClickType());
     }
 
     public void next() {

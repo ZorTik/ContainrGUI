@@ -3,6 +3,7 @@ package me.zort.containr.component.element;
 import lombok.Getter;
 import lombok.Setter;
 import me.zort.containr.Container;
+import me.zort.containr.ContextClickInfo;
 import me.zort.containr.Element;
 import me.zort.containr.GUI;
 import me.zort.containr.internal.util.QuadConsumer;
@@ -40,16 +41,14 @@ public abstract class BuyableElement extends Element {
         return (player, price) -> {};
     }
 
-    @NotNull
     @Override
-    public QuadConsumer<GUI, Container, Player, ClickType> action() {
-        return (o1, o2, o3, o4) -> {
-            if(owns().apply(o3) && !canOwnMulti) {
-                sell().accept(o3, price);
-            } else if(balance().apply(o3) >= price) {
-                buy().accept(o3, price);
-            }
-        };
+    public void click(ContextClickInfo info) {
+        Player o3 = info.getPlayer();
+        if(owns().apply(o3) && !canOwnMulti) {
+            sell().accept(o3, price);
+        } else if(balance().apply(o3) >= price) {
+            buy().accept(o3, price);
+        }
     }
 
     @Nullable

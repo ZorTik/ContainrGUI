@@ -18,12 +18,6 @@ public abstract class Element implements Component {
         this.id = RandomStringUtils.randomAlphabetic(8);
     }
 
-    @Deprecated
-    @NotNull
-    public QuadConsumer<GUI, Container, Player, ClickType> action() {
-        return (o1, o2, o3, o4) -> {};
-    }
-
     public void click(ContextClickInfo info) {}
 
     @Nullable
