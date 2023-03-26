@@ -12,4 +12,39 @@ An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imag
 ## Installation
 You can add Containr to your build path using Maven or Gradle. ContainrGUI is **not a Minecraft plugin**! This means that you can use it's code directly in your project by shading it into your build path.
 
-<a href="https://github.com/ZorTik/ContainrGUI/wiki/Installation">Installation on new Wiki</a>
+<details><summary>Gradle</summary>
+
+Add this project to your build path using Gradle with JitPack as represented below.
+```
+repositories {
+	maven { url = 'https://jitpack.io' }
+}
+```
+```
+dependencies {
+	implementation 'com.github.ZorTik:ContainrGUI:Tag'
+}
+```
+</details>
+
+<details><summary>Maven</summary>
+
+You can also use Maven with JitPack as seen below.
+```
+<repositories>
+	<repository>
+		<id>jitpack.io</id>
+		<url>https://jitpack.io</url>
+	</repository>
+</repositories>
+```
+```
+<dependency>
+	<groupId>com.github.ZorTik</groupId>
+		<artifactId>ContainrGUI</artifactId>
+	<version>Version</version>
+</dependency>
+```
+</details>
+
+<a href="https://github.com/ZorTik/ContainrGUI/wiki/Installation">More on new Wiki</a>
