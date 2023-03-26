@@ -47,4 +47,4 @@ You can also use Maven with JitPack as seen below.
 ```
 </details>
 
-<a href="https://github.com/ZorTik/ContainrGUI/wiki/Installation">More on new Wiki</a>
+[More on new Wiki](https://github.com/ZorTik/ContainrGUI/wiki)
