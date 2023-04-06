@@ -9,6 +9,11 @@ An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imag
 ![Badge](https://img.shields.io/jitpack/version/com.github.ZorTik/ContainrGUI?style=for-the-badge) ![Badge](https://img.shields.io/github/license/ZorTik/ContainrGUI?style=for-the-badge)
 </div>
 
+## About
+Creating a static GUI (Graphical User Interface) can be a tedious and time-consuming task, especially when working with complex environments like Minecraft. That's where the Containr library comes in. With its intuitive API and user-friendly approach, Containr simplifies the process of GUI creation in Minecraft, allowing developers to focus on the functionality of their mods rather than the intricacies of UI design.
+
+Create almost anything when it comes to GUIs using **reactive**, **modular** and highly **extendable** Containr!
+
 ## Installation
 You can add Containr to your build path using Maven or Gradle. ContainrGUI is **not a Minecraft plugin**! This means that you can use it's code directly in your project by shading it into your build path.
 
