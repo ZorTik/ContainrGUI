@@ -107,7 +107,7 @@ public class PagedContainer extends Container {
     }
 
     @Override
-    public <T extends Element> Map<Integer, T> content(@Nullable Class<T> clazz) {
+    public final <T extends Element> Map<Integer, T> content(@Nullable Class<T> clazz) {
         Map<Integer, T> result = Maps.newHashMap();
         getContainers().entrySet().stream()
                 .filter(e -> isOnThisPage(e.getKey()))

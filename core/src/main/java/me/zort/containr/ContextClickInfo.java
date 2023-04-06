@@ -15,4 +15,8 @@ public class ContextClickInfo {
     private final Player player;
     private final ClickType clickType;
 
+    public final void close() {
+        gui.close(player);
+    }
+
 }

@@ -7,27 +7,29 @@ import org.jetbrains.annotations.NotNull;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class Containr {
+public final class Containr {
 
-    private static GUIListener LISTENER;
-    private static Plugin CURRENT;
+    private static GUIListener listener;
+    private static Plugin current;
 
     static {
-        LISTENER = null;
-        CURRENT = null;
+        listener = null;
+        current = null;
     }
 
+    private Containr() {}
+
     public static void init(@NotNull Plugin plugin) {
-        if(CURRENT != null) {
-            if(!CURRENT.isEnabled() && LISTENER != null) {
-                HandlerList.unregisterAll(LISTENER);
-                LISTENER = null;
-            } else if(CURRENT.isEnabled()) {
+        if(current != null) {
+            if(!current.isEnabled() && listener != null) {
+                HandlerList.unregisterAll(listener);
+                listener = null;
+            } else if(current.isEnabled()) {
                 return;
             }
         }
-        getServer().getPluginManager().registerEvents(LISTENER = new GUIListener(), plugin);
-        CURRENT = plugin;
+        getServer().getPluginManager().registerEvents(listener = new GUIListener(), plugin);
+        current = plugin;
     }
 
 }

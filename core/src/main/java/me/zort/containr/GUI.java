@@ -1,11 +1,14 @@
 package me.zort.containr;
 
 import com.google.common.collect.Maps;
+import lombok.SneakyThrows;
 import me.zort.containr.builder.PatternGUIBuilder;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.zort.containr.factory.BasicInventoryFactory;
+import me.zort.containr.factory.CustomInventoryFactory;
 import me.zort.containr.internal.util.Containers;
 import me.zort.containr.internal.util.NBT;
 import me.zort.containr.internal.util.Pair;
@@ -32,7 +35,7 @@ import java.util.stream.Collectors;
  * @author ZorTik
  */
 @Getter
-public abstract class GUI extends ContainerHolder implements InventoryHolder {
+public abstract class GUI extends ContainerHolder implements InventoryHolder, Cloneable {
 
     @NotNull
     public static PatternGUIBuilder ofPattern(@NotNull final Collection<String> pattern) {
@@ -60,20 +63,20 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
 
     public GUI(@NotNull final String title, final int rows) {
-        Inventory inventory = Bukkit.createInventory(this, rows * 9, title);
-        this.container = Containers.ofInv(inventory);
-        this.inventory = inventory;
-        this.title = title;
-        this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
-        this.closeHandlers = Maps.newConcurrentMap();
-        setNormalItemSlots();
+        this(new BasicInventoryFactory(title, rows));
     }
 
+    @ApiStatus.ScheduledForRemoval
+    @Deprecated
     public GUI(final InventoryType type, @NotNull final String title) {
-        Inventory inventory = Bukkit.createInventory(this, type, title);
-        this.container = Containers.ofInv(inventory);
-        this.inventory = inventory;
-        this.title = title;
+        this(new CustomInventoryFactory(type, title));
+    }
+
+    public GUI(final InventoryFactory inventoryFactory) {
+        InventoryInfo info = inventoryFactory.createInventory(this);
+        this.container = Containers.ofInv(info.getInventory());
+        this.inventory = info.getInventory();
+        this.title = info.getTitle();
         this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
         setNormalItemSlots();
@@ -240,9 +243,22 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder {
         return items;
     }
 
-    @NotNull
-    public final Inventory getHandle() {
+    /**
+     * @deprecated Use {@link #getInventory()}
+     */
+    @Deprecated
+    public final @NotNull Inventory getHandle() {
         return inventory;
+    }
+
+    public final @NotNull Inventory getInventory() {
+        return inventory;
+    }
+
+    @SneakyThrows
+    @Override
+    public GUI clone() {
+        return (GUI) super.clone();
     }
 
     public interface NormalEditHandler {

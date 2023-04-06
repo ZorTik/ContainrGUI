@@ -1,5 +1,8 @@
 package me.zort.containr;
 
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Consumer;
 
 public interface ContainerBuilder<C extends Container> {
@@ -9,92 +12,56 @@ public interface ContainerBuilder<C extends Container> {
     C build();
     void set(Container target, int relativeIndex);
 
+    @SuppressWarnings("unchecked")
     static <T extends Container> ContainerBuilder<T> newBuilder(Class<T> typeClass) {
+        BuilderContainerFactory<T> factory;
         if(typeClass == StaticContainer.class) {
-            return (ContainerBuilder<T>) new StaticContainerBuilder();
+            factory = (init, x, y) -> (T) new StaticContainer(x, y) {
+                @Override
+                public void init() {init.accept((T) this);}
+            };
         } else if(typeClass == PagedContainer.class) {
-            return (ContainerBuilder<T>) new PagedContainerBuilder();
+            factory = (init, x, y) -> (T) new PagedContainer(x, y) {
+                @Override
+                public void init() {init.accept((T) this);}
+            };
         } else {
             throw new IllegalArgumentException("Unsupported container type: " + typeClass.getName());
         }
+        return new BasicContainerBuilder<>(factory);
     }
 
-    class StaticContainerBuilder extends StaticContainer implements ContainerBuilder<StaticContainer> {
-
-        private Consumer<StaticContainer> onInitFunction = c -> {};
+    @RequiredArgsConstructor
+    class BasicContainerBuilder<T extends Container> implements ContainerBuilder<T> {
+        private final BuilderContainerFactory<T> factory;
+        private Consumer<T> onInitFunction = c -> {};
         private int[] size = new int[] {1, 1};
 
-        public StaticContainerBuilder() {
-            super(1, 1);
-        }
-
         @Override
-        public ContainerBuilder<StaticContainer> size(int width, int height) {
+        public final ContainerBuilder<T> size(int width, int height) {
             this.size = new int[] {width, height};
             return this;
         }
 
         @Override
-        public void init() {
-            onInitFunction.accept(this);
-        }
-
-        @Override
-        public ContainerBuilder<StaticContainer> init(Consumer<StaticContainer> onInitFunction) {
+        public final ContainerBuilder<T> init(@NotNull Consumer<T> onInitFunction) {
             this.onInitFunction = onInitFunction;
             return this;
         }
 
         @Override
-        public StaticContainer build() {
-            changeSelection(size[0], size[1]);
-            return this;
+        public final void set(@NotNull Container target, int relativeIndex) {
+            onInitFunction = onInitFunction.andThen(c -> c.setContainer(relativeIndex, c));
         }
 
         @Override
-        public void set(Container target, int relativeIndex) {
-            target.setContainer(build(), relativeIndex);
+        public T build() {
+            return factory.create(onInitFunction, size[0], size[1]);
         }
-
     }
 
-    class PagedContainerBuilder extends PagedContainer implements ContainerBuilder<PagedContainer> {
-
-        private Consumer<PagedContainer> onInitFunction = c -> {};
-        private int[] size = new int[] {1, 1};
-
-        public PagedContainerBuilder() {
-            super(1, 1);
-        }
-
-        @Override
-        public ContainerBuilder<PagedContainer> size(int width, int height) {
-            this.size = new int[] {width, height};
-            return this;
-        }
-
-        @Override
-        public void init() {
-            onInitFunction.accept(this);
-        }
-
-        @Override
-        public ContainerBuilder<PagedContainer> init(Consumer<PagedContainer> onInitFunction) {
-            this.onInitFunction = onInitFunction;
-            return this;
-        }
-
-        @Override
-        public PagedContainer build() {
-            changeSelection(size[0], size[1]);
-            return this;
-        }
-
-        @Override
-        public void set(Container target, int relativeIndex) {
-            target.setContainer(build(), relativeIndex);
-        }
-
+    interface BuilderContainerFactory<T extends Container> {
+        T create(Consumer<T> onInitFunction, int width, int height);
     }
 
 }

@@ -36,9 +36,16 @@ public abstract class BuyableElement extends Element {
     public abstract Function<Player, Integer> balance();
     public abstract Function<Player, Boolean> owns();
 
-    public abstract BiConsumer<Player, Integer> buy();
+    public abstract void buy(Player player, int price);
+    public abstract void sell(Player player, int price);
+
+    @Deprecated
+    public BiConsumer<Player, Integer> buy() {
+        return this::buy;
+    }
+    @Deprecated
     public BiConsumer<Player, Integer> sell() {
-        return (player, price) -> {};
+        return this::sell;
     }
 
     @Override

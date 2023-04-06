@@ -1,7 +1,7 @@
 package me.zort.containr.examples;
 
 import me.zort.containr.GUI;
-import me.zort.containr.SimpleElementBuilder;
+import me.zort.containr.builder.SimpleElementBuilder;
 import me.zort.containr.component.element.ItemElement;
 import me.zort.containr.internal.util.Items;
 import me.zort.containr.PagedContainer;

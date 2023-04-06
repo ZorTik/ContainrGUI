@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+@ApiStatus.ScheduledForRemoval
 @Deprecated
 public abstract class ToggleableElement extends Element {
 

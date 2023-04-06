@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 public abstract class AnimatedMultiElement extends Element {
 
     private final CyclicArrayList<Element> parts;

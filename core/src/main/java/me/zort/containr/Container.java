@@ -72,7 +72,7 @@ public abstract class Container implements ContainerComponent {
         return content;
     }
 
-    public Map<Integer, Element> content(List<Class<? extends Element>> classes) {
+    public final Map<Integer, Element> content(List<Class<? extends Element>> classes) {
         Map<Integer, Element> res = Maps.newHashMap();
         if(classes != null) {
             classes.forEach(clazz -> res.putAll(content(clazz)));
