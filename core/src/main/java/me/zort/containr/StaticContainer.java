@@ -41,7 +41,7 @@ public class StaticContainer extends Container {
     }
 
     @Override
-    public <T extends Element> Map<Integer, T> content(Class<T> clazz) {
+    public final <T extends Element> Map<Integer, T> content(Class<T> clazz) {
         Map<Integer, T> result = Maps.newHashMap();
         getElements().forEach((pos, e) -> {
             if((clazz == null || clazz.isAssignableFrom(e.getClass())) && pos < getSelection().size()) {
@@ -52,19 +52,19 @@ public class StaticContainer extends Container {
         return result;
     }
 
-    public void centerElements() {
+    public final void centerElements() {
         centerElements(getSelection().xSideSize());
     }
 
-    public void centerElements(int xSize) {
+    public final void centerElements(int xSize) {
         centerElements(xSize, 1);
     }
 
-    public void centerElements(int xSize, int elementDist) {
+    public final void centerElements(int xSize, int elementDist) {
         centerElements(xSize, elementDist, 1, true);
     }
 
-    public void centerElements(int xSize, int elementDist, int yElementDist, boolean keepXSize) {
+    public final void centerElements(int xSize, int elementDist, int yElementDist, boolean keepXSize) {
         if(xSize < 1) throw new IllegalArgumentException("Cannot center elements with x śide size < 1");
         if(getElements().size() == 0) return;
         List<Element> elementsClone = Lists.newArrayList(getElements().values());

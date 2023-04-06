@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor
-public class WoodenPagingArrow extends Element {
+public class PagingArrowElement extends Element {
 
     private static final String L_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWVkNzg4MjI1NzYzMTdiMDQ4ZWVhOTIyMjdjZDg1ZjdhZmNjNDQxNDhkY2I4MzI3MzNiYWNjYjhlYjU2ZmExIn19fQ==";
     private static final String R_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzE1NDQ1ZGExNmZhYjY3ZmNkODI3ZjcxYmFlOWMxZDJmOTBjNzNlYjJjMWJkMWVmOGQ4Mzk2Y2Q4ZTgifX19";
@@ -20,9 +20,10 @@ public class WoodenPagingArrow extends Element {
     private final AtomicReference<PagedContainer> container;
     private final boolean left;
     private final String title;
+    private final String texture;
 
-    public WoodenPagingArrow(PagedContainer container, boolean left, String title) {
-        this(new AtomicReference<>(container), left, title);
+    public PagingArrowElement(PagedContainer container, boolean left, String title) {
+        this(new AtomicReference<>(container), left, title, left ? L_TEXTURE : R_TEXTURE);
     }
 
     @Override
@@ -38,6 +39,6 @@ public class WoodenPagingArrow extends Element {
 
     @Override
     public @Nullable ItemStack item(Player player) {
-        return Items.createSkull(title, left ? L_TEXTURE : R_TEXTURE);
+        return Items.createSkull(title, texture);
     }
 }

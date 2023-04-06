@@ -1,6 +1,5 @@
 package me.zort.containr.builder;
 
-import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.zort.containr.*;
@@ -38,25 +37,23 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.filler = null;
     }
 
-    public final PatternGUIBuilder andTitle(String title) {
+    public PatternGUIBuilder andTitle(String title) {
         this.title = title;
         return this;
     }
 
-    public final <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
-        Objects.requireNonNull(initFunction);
+    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
         return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
                 .size(xSize, ySize)
-                .init(initFunction)
+                .init(Objects.requireNonNull(initFunction))
                 .build());
     }
 
     @SuppressWarnings("unused")
-    public final <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
-        Objects.requireNonNull(symbol);
-        Objects.requireNonNull(containerFactory);
-        for(PatternContainerMatcher.SizeMatch match : new PatternContainerMatcher(pattern, symbol).match()) {
-            T container = containerFactory.create(match.getSize()[0], match.getSize()[1]);
+    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
+        for(PatternContainerMatcher.SizeMatch match
+                : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
+            T container = Objects.requireNonNull(containerFactory).create(match.getSize()[0], match.getSize()[1]);
             putContainerMatch(match, container);
         }
         return this;
@@ -95,9 +92,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         int index = 0;
         for(String line : pattern) {
             for(char c : line.toCharArray()) {
-                if(c == symbol.charAt(0)) {
-                    this.elements.put(index, element);
-                }
+                if(c == symbol.charAt(0)) this.elements.put(index, element);
                 index++;
             }
         }
@@ -122,10 +117,6 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         };
     }
 
-    public <T extends GUI> T build(PatternGUIFactory<T> factory) {
-        return factory.create(title, rows, this::doBuild);
-    }
-
     public GUI build() {
         return new GUI(title, rows) {
             @Override
@@ -133,6 +124,10 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
                 doBuild(this);
             }
         };
+    }
+
+    public <T extends GUI> T build(PatternGUIFactory<T> factory) {
+        return factory.create(title, rows, this::doBuild);
     }
 
     private void doBuild(GUI gui) {

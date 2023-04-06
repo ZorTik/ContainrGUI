@@ -1,5 +1,8 @@
 package me.zort.containr.internal;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import me.zort.containr.Containr;
 import me.zort.containr.GUI;
 import me.zort.containr.GUIRepository;
 import org.bukkit.Material;
@@ -8,13 +11,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import java.util.LinkedList;
 import java.util.Optional;
 
+@RequiredArgsConstructor
+@Getter
 public class GUIListener implements Listener {
+
+    private final Plugin plugin;
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
@@ -31,11 +40,7 @@ public class GUIListener implements Listener {
                 if(gui.isFrozen()) {
                     return;
                 }
-                if(e.getCursor() != null && !e.getCursor().getType().equals(Material.AIR) && !gui.getNormalItemSlots().contains(e.getSlot())) {
-                    // If player has item on cursor and this is not a normal item slot,
-                    // he's not allowed to put it here.
-                    return;
-                } else if(gui.getNormalItemSlots().contains(e.getSlot())) {
+                if(gui.getNormalItemSlots().contains(e.getSlot())) {
                     e.setCancelled(false);
                     for(GUI.NormalEditHandler handler : gui.getNormalEditHandlers()) {
                         try {
@@ -48,7 +53,7 @@ public class GUIListener implements Listener {
                 }
                 ClickType clickType = e.getClick();
                 ItemStack item = e.getCurrentItem();
-                gui.invokeElement(p, clickType, item);
+                gui.invokeElement(p, clickType, item, e.getCursor());
             } else if(GUIRepository.hasOpen(p) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
                 // We don't want to allow players to drop items to gui with shift click.
                 e.setCancelled(true);
@@ -76,6 +81,11 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onInventoryCreativeEvent(InventoryCreativeEvent e) {
         onInventoryClick(e);
+    }
+
+    @EventHandler
+    public void onDisable(PluginDisableEvent e) {
+        Containr.unregisterSignal(e.getPlugin());
     }
 
 }

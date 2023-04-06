@@ -5,29 +5,39 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.bukkit.Bukkit.getServer;
 
-public class Containr {
+public final class Containr {
 
-    private static GUIListener LISTENER;
-    private static Plugin CURRENT;
+    private static final List<Plugin> registrations = new ArrayList<>();
+    private static GUIListener listener;
 
     static {
-        LISTENER = null;
-        CURRENT = null;
+        listener = null;
     }
 
+    private Containr() {}
+
     public static void init(@NotNull Plugin plugin) {
-        if(CURRENT != null) {
-            if(!CURRENT.isEnabled() && LISTENER != null) {
-                HandlerList.unregisterAll(LISTENER);
-                LISTENER = null;
-            } else if(CURRENT.isEnabled()) {
-                return;
-            }
+        if (!registrations.contains(plugin)) registrations.add(plugin);
+        if (listener == null)
+            getServer().getPluginManager().registerEvents(listener = new GUIListener(plugin), plugin);
+    }
+
+    public static void unregisterSignal(@NotNull Plugin plugin) {
+        registrations.remove(plugin);
+
+        if (listener != null && listener.getPlugin().equals(plugin)) {
+            HandlerList.unregisterAll(listener);
+            listener = null;
         }
-        getServer().getPluginManager().registerEvents(LISTENER = new GUIListener(), plugin);
-        CURRENT = plugin;
+
+        if (!registrations.isEmpty()) init(registrations.get(0));
     }
 
 }

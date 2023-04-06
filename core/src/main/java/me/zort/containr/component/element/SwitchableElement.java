@@ -11,6 +11,7 @@ import me.zort.containr.internal.util.QuadConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,12 +30,20 @@ public abstract class SwitchableElement<T> extends Element {
         this.options = new CyclicArrayList<>(options);
     }
 
-    public abstract QuadConsumer<GUI, Container, Player, ClickType> action(@Nullable T newOption);
     public abstract ItemStack option(@Nullable T option);
+
+    @Deprecated
+    public QuadConsumer<GUI, Container, Player, ClickType> action(@Nullable T newOption) {
+        return (o1, o2, o3, o4) -> {};
+    }
+
+    @ApiStatus.OverrideOnly
+    public void action(ContextClickInfo info, T newOption) {}
 
     @Override
     public void click(ContextClickInfo info) {
         next();
+        action(info, options.getCurrent().orElse(null));
         action(options.getCurrent().orElse(null)).accept(
                 info.getGui(),
                 info.getContainer(),
