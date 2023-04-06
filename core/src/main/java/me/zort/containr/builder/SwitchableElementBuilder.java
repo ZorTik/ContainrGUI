@@ -1,14 +1,9 @@
 package me.zort.containr.builder;
 
 import com.google.common.collect.Lists;
-import me.zort.containr.Container;
 import me.zort.containr.ContextClickInfo;
 import me.zort.containr.ElementBuilder;
-import me.zort.containr.GUI;
 import me.zort.containr.component.element.SwitchableElement;
-import me.zort.containr.internal.util.QuadConsumer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,12 +41,9 @@ public class SwitchableElementBuilder<T> implements ElementBuilder<SwitchableEle
 
     public SwitchableElement<T> build() {
         return new SwitchableElement<T>(options) {
-
             @Override
-            public QuadConsumer<GUI, Container, Player, ClickType> action(@Nullable T newOption) {
-                return (o1, o2, o3, o4) -> {
-                    action.accept(new ContextClickInfo(o1, o2, this, o3, o4), newOption);
-                };
+            public void action(ContextClickInfo info, T newOption) {
+                action.accept(info, newOption);
             }
             @Override
             public ItemStack option(@Nullable T option) {
