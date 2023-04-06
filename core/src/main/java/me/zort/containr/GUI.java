@@ -202,7 +202,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
 
     public final boolean invokeElement(final Player p,
                                        final ClickType clickType,
-                                       final ItemStack clickedItem) {
+                                       final ItemStack clickedItem,
+                                       final ItemStack cursorItem) {
         if(clickedItem == null || clickedItem.getType().equals(Material.AIR)) return false;
         if(frozen) return false;
         NBTItem item = new NBTItem(clickedItem);
@@ -213,7 +214,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         Pair<Container, Element> elementPair = elementOptional.get();
         Container container = elementPair.getKey();
         Element element = elementPair.getValue();
-        element.click(new ContextClickInfo(this, container, element, p, clickType));
+        element.click(new ContextClickInfo(this, container, element, p, clickType, cursorItem));
         return true;
     }
 
