@@ -32,24 +32,22 @@ public class PagedContainer extends Container {
         super(corner1, corner2);
     }
 
-    public void switchPage(int pageIndex) {
+    public final void switchPage(int pageIndex) {
         int oldPageIndex = currentPageIndex;
         this.currentPageIndex = pageIndex;
 
         onPageSwitch(oldPageIndex, currentPageIndex);
     }
 
-    public boolean nextPage() {
+    public final boolean nextPage() {
         if(isLastPage()) return false;
         switchPage(getCurrentPageIndex() + 1);
-        //onPageSwitch(getCurrentPage() - 1, getCurrentPage());
         return true;
     }
 
-    public boolean previousPage() {
+    public final boolean previousPage() {
         if(isFirstPage()) return false;
         switchPage(getCurrentPageIndex() - 1);
-        //onPageSwitch(getCurrentPage() + 1, getCurrentPage());
         return true;
     }
 

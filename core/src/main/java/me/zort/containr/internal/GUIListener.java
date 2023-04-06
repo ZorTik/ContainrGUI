@@ -1,5 +1,8 @@
 package me.zort.containr.internal;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import me.zort.containr.Containr;
 import me.zort.containr.GUI;
 import me.zort.containr.GUIRepository;
 import org.bukkit.Material;
@@ -8,13 +11,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import java.util.LinkedList;
 import java.util.Optional;
 
+@RequiredArgsConstructor
+@Getter
 public class GUIListener implements Listener {
+
+    private final Plugin plugin;
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
@@ -76,6 +85,11 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onInventoryCreativeEvent(InventoryCreativeEvent e) {
         onInventoryClick(e);
+    }
+
+    @EventHandler
+    public void onDisable(PluginDisableEvent e) {
+        Containr.unregisterSignal(e.getPlugin());
     }
 
 }
