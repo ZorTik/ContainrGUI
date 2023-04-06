@@ -2,10 +2,7 @@ package me.zort.containr.builder;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import me.zort.containr.Container;
-import me.zort.containr.ContextClickInfo;
-import me.zort.containr.Element;
-import me.zort.containr.GUI;
+import me.zort.containr.*;
 import me.zort.containr.internal.util.QuadConsumer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -25,7 +22,7 @@ import java.util.function.Supplier;
  * @author ZorTik
  */
 @Getter(AccessLevel.PROTECTED)
-public class SimpleElementBuilder {
+public class SimpleElementBuilder implements ElementBuilder<Element> {
 
     public static SimpleElementBuilder b() {
         return new SimpleElementBuilder();

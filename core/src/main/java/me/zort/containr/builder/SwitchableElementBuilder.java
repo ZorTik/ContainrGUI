@@ -3,6 +3,7 @@ package me.zort.containr.builder;
 import com.google.common.collect.Lists;
 import me.zort.containr.Container;
 import me.zort.containr.ContextClickInfo;
+import me.zort.containr.ElementBuilder;
 import me.zort.containr.GUI;
 import me.zort.containr.component.element.SwitchableElement;
 import me.zort.containr.internal.util.QuadConsumer;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class SwitchableElementBuilder<T> {
+public class SwitchableElementBuilder<T> implements ElementBuilder<SwitchableElement<T>> {
 
     private BiConsumer<ContextClickInfo, T> action = (i, o) -> {};
     private Function<T, ItemStack> itemFunc = (o) -> null;
