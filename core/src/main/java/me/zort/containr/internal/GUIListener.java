@@ -40,11 +40,7 @@ public class GUIListener implements Listener {
                 if(gui.isFrozen()) {
                     return;
                 }
-                if(e.getCursor() != null && !e.getCursor().getType().equals(Material.AIR) && !gui.getNormalItemSlots().contains(e.getSlot())) {
-                    // If player has item on cursor and this is not a normal item slot,
-                    // he's not allowed to put it here.
-                    return;
-                } else if(gui.getNormalItemSlots().contains(e.getSlot())) {
+                if(gui.getNormalItemSlots().contains(e.getSlot())) {
                     e.setCancelled(false);
                     for(GUI.NormalEditHandler handler : gui.getNormalEditHandlers()) {
                         try {
