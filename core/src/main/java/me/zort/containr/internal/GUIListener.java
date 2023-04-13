@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import me.zort.containr.Containr;
 import me.zort.containr.GUI;
 import me.zort.containr.GUIRepository;
-import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
