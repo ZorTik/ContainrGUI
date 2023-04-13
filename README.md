@@ -18,12 +18,12 @@ You can add Containr to your build path using Maven or Gradle. ContainrGUI is **
 <details><summary>Gradle</summary>
 
 Add this project to your build path using Gradle with JitPack as represented below.
-```
+```gradle
 repositories {
 	maven { url = 'https://jitpack.io' }
 }
 ```
-```
+```gradle
 dependencies {
 	implementation 'com.github.ZorTik:ContainrGUI:Tag'
 }
@@ -33,7 +33,7 @@ dependencies {
 <details><summary>Maven</summary>
 
 You can also use Maven with JitPack as seen below.
-```
+```xml
 <repositories>
 	<repository>
 		<id>jitpack.io</id>
@@ -41,7 +41,7 @@ You can also use Maven with JitPack as seen below.
 	</repository>
 </repositories>
 ```
-```
+```xml
 <dependency>
 	<groupId>com.github.ZorTik</groupId>
 		<artifactId>ContainrGUI</artifactId>
