@@ -3,11 +3,8 @@ package me.zort.containr.builder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import me.zort.containr.*;
-import me.zort.containr.internal.util.QuadConsumer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,13 +34,6 @@ public class SimpleElementBuilder implements ElementBuilder<Element> {
 
     public final SimpleElementBuilder item(@NotNull Supplier<ItemStack> itemSupplier) {
         this.itemSupplier = itemSupplier;
-        return this;
-    }
-
-    @ApiStatus.ScheduledForRemoval
-    @Deprecated
-    public final SimpleElementBuilder action(@NotNull QuadConsumer<GUI, Container, Player, ClickType> action) {
-        this.clickConsumer = info -> action.accept(info.getGui(), info.getContainer(), info.getPlayer(), info.getClickType());
         return this;
     }
 

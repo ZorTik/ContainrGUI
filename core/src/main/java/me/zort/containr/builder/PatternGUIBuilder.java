@@ -8,6 +8,7 @@ import me.zort.containr.component.gui.AnimatedGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +27,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
     private String title;
     private Element filler;
 
-    public PatternGUIBuilder(final String title, final String[] pattern) {
+    public PatternGUIBuilder(final @NotNull String title, final @NotNull String[] pattern) {
         checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
         validatePatternWidth(pattern);
         this.title = title;
@@ -37,12 +38,12 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.filler = null;
     }
 
-    public PatternGUIBuilder andTitle(String title) {
+    public @NotNull PatternGUIBuilder andTitle(final @NotNull String title) {
         this.title = title;
         return this;
     }
 
-    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
+    public <T extends Container> @NotNull PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
         return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
                 .size(xSize, ySize)
                 .init(Objects.requireNonNull(initFunction))
@@ -50,7 +51,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     @SuppressWarnings("unused")
-    public <T extends Container> PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
+    public <T extends Container> @NotNull PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
         for(PatternContainerMatcher.SizeMatch match
                 : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
             T container = Objects.requireNonNull(containerFactory).create(match.getSize()[0], match.getSize()[1]);
@@ -59,7 +60,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         return this;
     }
 
-    private void putContainerMatch(PatternContainerMatcher.SizeMatch match, Container container) {
+    private void putContainerMatch(final @NotNull PatternContainerMatcher.SizeMatch match, final @NotNull Container container) {
         this.containers.put(match.getIndex(), container);
     }
 
@@ -77,7 +78,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      * @param elementsToAdd Elements to be put.
      * @return This builder.
      */
-    public PatternGUIBuilder addQueue(String symbol, Element... elementsToAdd) {
+    public PatternGUIBuilder addQueue(final @NotNull String symbol, Element... elementsToAdd) {
         checkSymbol(symbol);
         IndexIterator iter = new IndexIterator(pattern, symbol, i -> !elements.containsKey(i));
         for(Element element : elementsToAdd) {
@@ -87,7 +88,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         return this;
     }
 
-    public PatternGUIBuilder andMark(String symbol, Element element) {
+    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
         checkSymbol(symbol);
         int index = 0;
         for(String line : pattern) {
@@ -99,16 +100,16 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         return this;
     }
 
-    public PatternGUIBuilder andMark(String symbol, ItemStack item) {
+    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull ItemStack item) {
         return andMark(symbol, ItemElement.on(item));
     }
 
-    public PatternGUIBuilder andFill(Element element) {
+    public PatternGUIBuilder andFill(final @Nullable Element element) {
         this.filler = element;
         return this;
     }
 
-    public AnimatedGUI build(int period, TimeUnit unit) {
+    public @NotNull AnimatedGUI build(int period, TimeUnit unit) {
         return new AnimatedGUI(title, rows, period, unit) {
             @Override
             public void build(Player p) {
@@ -117,7 +118,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         };
     }
 
-    public GUI build() {
+    public @NotNull GUI build() {
         return new GUI(title, rows) {
             @Override
             public void build(Player p) {
@@ -126,7 +127,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         };
     }
 
-    public <T extends GUI> T build(PatternGUIFactory<T> factory) {
+    public <T extends GUI> @NotNull T build(PatternGUIFactory<T> factory) {
         return factory.create(title, rows, this::doBuild);
     }
 
@@ -156,11 +157,8 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
             this.current = -1;
 
             for(int i = 0; i < pattern.length; i++) {
-                String line = pattern[i];
-                for(char c : line.toCharArray()) {
-                    if(c == symbol.charAt(0) && pred.test(i)) {
-                        availableIndexes.add(i);
-                    }
+                for(char c : pattern[i].toCharArray()) {
+                    if(c == symbol.charAt(0) && pred.test(i)) availableIndexes.add(i);
                 }
             }
         }

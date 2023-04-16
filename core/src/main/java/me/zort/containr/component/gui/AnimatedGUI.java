@@ -17,14 +17,12 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AnimatedGUI extends GUI {
 
-    @Setter
-    @Getter
-    private long period;
-
-    private Timer timer;
     @Nullable
     private Player currentPlayer;
     private boolean stopped;
+    @Setter
+    @Getter
+    private long period;
 
     public AnimatedGUI(String title, int rows, int period, TimeUnit unit) {
         super(title, rows);
@@ -36,10 +34,6 @@ public abstract class AnimatedGUI extends GUI {
     @Override
     public void open(@NotNull Player p, boolean update) {
         super.open(p, update);
-        if(timer != null) {
-            timer.cancel();
-            timer.purge();
-        }
         this.currentPlayer = p;
         new BukkitRunnable() {
             @Override
@@ -58,12 +52,12 @@ public abstract class AnimatedGUI extends GUI {
         this.stopped = true;
     }
 
+    @Deprecated
     public void onPreTick(Player player) {}
 
     public void tickAnimatedElements(Player player) {
         onPreTick(player);
         update(player, AnimatedSuppliedElement.class, AnimatedElement.class);
-        //update(player, AnimatedElement.class);
     }
 
 }

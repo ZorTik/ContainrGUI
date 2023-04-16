@@ -3,11 +3,13 @@ package me.zort.containr.component.gui;
 import me.zort.containr.Element;
 import me.zort.containr.GUI;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
+@ApiStatus.ScheduledForRemoval
 @Deprecated
 public abstract class AsyncGUI extends GUI {
 

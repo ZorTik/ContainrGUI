@@ -23,4 +23,12 @@ public final class Util {
         return (loc[1] * containerXSize) + loc[0];
     }
 
+    public static void runCatching(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
