@@ -25,7 +25,7 @@ repositories {
 ```
 ```gradle
 dependencies {
-	implementation 'com.github.ZorTik:ContainrGUI:Tag'
+	implementation 'com.github.ZorTik:ContainrGUI:0.6'
 }
 ```
 </details>
@@ -45,7 +45,7 @@ You can also use Maven with JitPack as seen below.
 <dependency>
 	<groupId>com.github.ZorTik</groupId>
 		<artifactId>ContainrGUI</artifactId>
-	<version>Version</version>
+	<version>0.6</version>
 </dependency>
 ```
 </details>
