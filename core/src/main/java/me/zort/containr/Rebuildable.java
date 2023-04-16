@@ -1,5 +1,8 @@
 package me.zort.containr;
 
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * Represents a rebuildable GUI.
  * This interface is determined to be used ONLY by implementing
@@ -16,6 +19,20 @@ package me.zort.containr;
  */
 public interface Rebuildable {
 
-    void rebuild();
+    /**
+     * Rebuilds the GUI.
+     *
+     * @deprecated Use {@link #rebuild(Player)} instead.
+     */
+    @ApiStatus.ScheduledForRemoval
+    @Deprecated
+    default void rebuild() {}
+
+    /**
+     * Rebuilds the GUI.
+     *
+     * @param player The player for whom the GUI is being rebuilt.
+     */
+    default void rebuild(Player player) {}
 
 }

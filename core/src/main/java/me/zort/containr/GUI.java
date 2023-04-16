@@ -120,6 +120,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     public void open(@NotNull Player p, boolean update) {
         if(!initial && this instanceof Rebuildable) {
             ((Rebuildable) this).rebuild();
+            ((Rebuildable) this).rebuild(p);
         } else if(initial) build(p);
         GUIRepository.add(p.getName(), this);
 
