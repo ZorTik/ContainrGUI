@@ -80,7 +80,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      */
     public PatternGUIBuilder addQueue(final @NotNull String symbol, Element... elementsToAdd) {
         checkSymbol(symbol);
-        IndexIterator iter = new IndexIterator(pattern, symbol, i -> !elements.containsKey(i));
+        IndexIterator iter = new IndexIterator(symbol, i -> !elements.containsKey(i));
         for(Element element : elementsToAdd) {
             if(!iter.hasNext()) break;
             elements.put(iter.next(), element);
@@ -90,13 +90,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
         checkSymbol(symbol);
-        int index = 0;
-        for(String line : pattern) {
-            for(char c : line.toCharArray()) {
-                if(c == symbol.charAt(0)) this.elements.put(index, element);
-                index++;
-            }
-        }
+        new IndexIterator(symbol, i -> true).forEachRemaining(i -> elements.put(i, element));
         return this;
     }
 
@@ -145,22 +139,16 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         T create(String title, int rows, Consumer<GUI> doBuildFunction);
     }
 
-    private static class IndexIterator implements Iterator<Integer> {
+    class IndexIterator implements Iterator<Integer> {
 
         private final List<Integer> availableIndexes;
         private int current;
 
-        public IndexIterator(@NotNull final String[] pattern,
-                             @NotNull final String symbol,
-                             @NotNull final Predicate<Integer> pred) {
+        public IndexIterator(@NotNull final String symbol, @NotNull final Predicate<Integer> pred) {
             this.availableIndexes = new ArrayList<>();
             this.current = -1;
 
-            for(int i = 0; i < pattern.length; i++) {
-                for(char c : pattern[i].toCharArray()) {
-                    if(c == symbol.charAt(0) && pred.test(i)) availableIndexes.add(i);
-                }
-            }
+            populateIndexes(symbol, pred);
         }
 
         @Override
@@ -171,6 +159,16 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         @Override
         public boolean hasNext() {
             return availableIndexes.size() > current + 1;
+        }
+
+        private void populateIndexes(String symbol, Predicate<Integer> pred) {
+            int i = 0;
+            for (String s : pattern) {
+                for (char c : s.toCharArray()) {
+                    if (c == symbol.charAt(0) && pred.test(i)) availableIndexes.add(i);
+                    i++;
+                }
+            }
         }
 
     }
