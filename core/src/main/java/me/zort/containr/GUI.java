@@ -27,6 +27,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static me.zort.containr.util.Util.runCatching;
+
 /**
  * A GUI is a main entrance of a menu.
  * It collects contents from its main Container and renders them on
@@ -47,8 +49,6 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         return new PatternGUIBuilder("", pattern);
     }
 
-    private static final String ELEMENT_ID_KEY = "gui_element_id";
-
     private final Container container;
     private final Inventory inventory;
     private final String title;
@@ -68,11 +68,11 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
 
     @ApiStatus.ScheduledForRemoval
     @Deprecated
-    public GUI(final InventoryType type, @NotNull final String title) {
+    public GUI(final @NotNull InventoryType type, final @NotNull String title) {
         this(new CustomInventoryFactory(type, title));
     }
 
-    public GUI(final InventoryFactory inventoryFactory) {
+    public GUI(final @NotNull InventoryFactory inventoryFactory) {
         InventoryInfo info = inventoryFactory.createInventory(this);
         this.container = Containers.ofInv(info.getInventory());
         this.inventory = info.getInventory();
@@ -100,6 +100,19 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         this.closeHandlers.computeIfAbsent(reason, k -> Collections.synchronizedList(new ArrayList<>())).add(handler);
     }
 
+    public final void setNormalItemSlots(Integer... slots) {
+        setNormalItemSlots(Arrays.stream(slots).collect(Collectors.toList()));
+    }
+
+    public final void setNormalItemSlots(List<Integer> normalItemSlots) {
+        this.normalItemSlots = Collections.synchronizedList(normalItemSlots);
+    }
+
+    @NotNull
+    public final List<Integer> getNormalItemSlots() {
+        return new ArrayList<>(normalItemSlots);
+    }
+
     public void open(@NotNull Player p) {
         open(p, true);
     }
@@ -107,6 +120,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     public void open(@NotNull Player p, boolean update) {
         if(!initial && this instanceof Rebuildable) {
             ((Rebuildable) this).rebuild();
+            ((Rebuildable) this).rebuild(p);
         } else if(initial) build(p);
         GUIRepository.add(p.getName(), this);
 
@@ -139,13 +153,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         if(handlers == null)
             return;
 
-        handlers.forEach(handler -> {
-            try {
-                handler.accept(p);
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        });
+        handlers.forEach(handler -> runCatching(() -> handler.accept(p)));
     }
 
     public void update(Player p) {
@@ -157,27 +165,24 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     }
 
     public void update(Player p, boolean clear, Class<? extends Element>... clazz) {
-        if(clear) {
-            clearInventory();
-        }
+        if(clear) clearInventory();
+
         try {
             container.innerContainers().forEach(c -> c.refresh(p));
-            Map<Integer, ?> content = container.content(clazz.length > 0 ? Arrays.stream(clazz).collect(Collectors.toList()) : null);
+            Map<Integer, ?> content = container.content(clazz.length > 0 ? Arrays.asList(clazz) : null);
             content.keySet().forEach(slot -> {
-                if(slot < inventory.getSize() && slot >= 0 && inventory.getItem(slot) != null) {
-                    inventory.setItem(slot, null);
-                }
+                if(slot < inventory.getSize() && slot >= 0 && inventory.getItem(slot) != null) inventory.setItem(slot, null);
             });
             for(int slot : content.keySet()) {
                 Element element = (Element) content.get(slot);
                 ItemStack item = element.item(p);
                 if(item != null && !item.getType().equals(Material.AIR)) {
-                    item = NBT.modifyNBT(item, nbtItem -> nbtItem.setString(ELEMENT_ID_KEY, element.getId()));
+                    item = NBT.modifyNBT(item, nbtItem -> nbtItem.setString(Constants.ELEMENT_ID_KEY, element.getId()));
                 }
                 if(slot < inventory.getSize() && slot >= 0) {
                     inventory.setItem(slot, item);
                 } else {
-                    System.out.println("Cannot complete menu " + getClass().getSimpleName() + " for player " + p.getName() + " because index out of bounds: " + slot + " >= " + inventory.getSize());
+                    throw new IndexOutOfBoundsException("Cannot complete menu " + getClass().getSimpleName() + " for player " + p.getName() + " because index out of bounds: " + slot + " >= " + inventory.getSize());
                 }
             }
         } catch(Exception ex) {
@@ -189,9 +194,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         clearInventory(true);
     }
 
-    private void clearInventory(final boolean keepNormalItems) {
-        Map<Integer, ItemStack> normalItems = normalItemSlots
-                .stream()
+    private void clearInventory(boolean keepNormalItems) {
+        Map<Integer, ItemStack> normalItems = normalItemSlots.stream()
                 .filter(i -> inventory.getItem(i) != null)
                 .collect(Collectors.toMap(i -> i, inventory::getItem));
         inventory.clear();
@@ -200,39 +204,26 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         }
     }
 
-    public final boolean invokeElement(final Player p,
-                                       final ClickType clickType,
-                                       final ItemStack clickedItem,
-                                       final ItemStack cursorItem) {
-        if(clickedItem == null || clickedItem.getType().equals(Material.AIR)) return false;
-        if(frozen) return false;
-        NBTItem item = new NBTItem(clickedItem);
-        String id = item.getString(ELEMENT_ID_KEY);
+    public final boolean invokeElement(final @NotNull Player p,
+                                       final @NotNull ClickType clickType,
+                                       final @NotNull ItemStack clickedItem,
+                                       final @NotNull ItemStack cursorItem) {
+        Objects.requireNonNull(p, "Player cannot be null");
+        Objects.requireNonNull(clickType, "ClickType cannot be null");
+        Objects.requireNonNull(clickedItem, "ClickedItem cannot be null");
+        Objects.requireNonNull(cursorItem, "CursorItem cannot be null");
+
+        String id = new NBTItem(clickedItem).getString(Constants.ELEMENT_ID_KEY);
         if(id == null) return false;
         Optional<Pair<Container, Element>> elementOptional = container.findElementById(id);
         if(!elementOptional.isPresent()) return false;
         Pair<Container, Element> elementPair = elementOptional.get();
-        Container container = elementPair.getKey();
         Element element = elementPair.getValue();
-        element.click(new ContextClickInfo(this, container, element, p, clickType, cursorItem));
+        element.click(new ContextClickInfo(this, elementPair.getKey(), element, p, clickType, cursorItem));
         return true;
     }
 
-    public final void setNormalItemSlots(Integer... slots) {
-        setNormalItemSlots(Arrays.stream(slots).collect(Collectors.toList()));
-    }
-
-    public final void setNormalItemSlots(List<Integer> normalItemSlots) {
-        this.normalItemSlots = Collections.synchronizedList(normalItemSlots);
-    }
-
-    @NotNull
-    public final List<Integer> getNormalItemSlots() {
-        return new ArrayList<>(normalItemSlots);
-    }
-
-    @NotNull
-    public final Map<Integer, ItemStack> getNormalItems() {
+    public final @NotNull Map<Integer, ItemStack> getNormalItems() {
         Map<Integer, Element> content = container.content((List<Class<? extends Element>>) null);
         Map<Integer, ItemStack> items = Maps.newHashMap();
         for(int i = 0; i < inventory.getSize(); i++) {
@@ -247,6 +238,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     /**
      * @deprecated Use {@link #getInventory()}
      */
+    @ApiStatus.ScheduledForRemoval
     @Deprecated
     public final @NotNull Inventory getHandle() {
         return inventory;

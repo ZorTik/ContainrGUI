@@ -1,4 +1,6 @@
-package me.zort.containr;
+package me.zort.containr.builder;
+
+import me.zort.containr.GUI;
 
 /**
  * A GUI builder.

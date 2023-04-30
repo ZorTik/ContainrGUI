@@ -1,7 +1,6 @@
 package me.zort.containr.builder;
 
 import me.zort.containr.GUI;
-import me.zort.containr.GUIBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.function.BiConsumer;

@@ -24,8 +24,9 @@ public class PatternExample {
                 .andMark("X", PagedContainer.class, c -> {
                     c.appendElement(SimpleElementBuilder.b()
                             .item(Items.blank(Material.GRASS))
-                            .action((g, c1, p, ct) -> {
-                                p.sendMessage("This is grass element inside pattern container.");
+                            .click(info -> {
+                                Player infoPlayer = info.getPlayer();
+                                infoPlayer.sendMessage("This is grass element inside pattern container.");
                             })
                             .build());
                 })

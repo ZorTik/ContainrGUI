@@ -2,7 +2,6 @@ package me.zort.containr.builder;
 
 import com.google.common.collect.Lists;
 import me.zort.containr.ContextClickInfo;
-import me.zort.containr.ElementBuilder;
 import me.zort.containr.component.element.AnimatedElement;
 import me.zort.containr.internal.util.CyclicArrayList;
 import org.bukkit.inventory.ItemStack;

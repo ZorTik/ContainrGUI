@@ -2,7 +2,6 @@ package me.zort.containr.builder;
 
 import com.google.common.collect.Lists;
 import me.zort.containr.ContextClickInfo;
-import me.zort.containr.ElementBuilder;
 import me.zort.containr.component.element.SwitchableElement;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

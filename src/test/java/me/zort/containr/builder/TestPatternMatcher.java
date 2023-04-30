@@ -1,8 +1,10 @@
-package me.zort.containr.tests;
+package me.zort.containr.builder;
 
 import lombok.extern.log4j.Log4j2;
-import me.zort.containr.builder.PatternGUIBuilder;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -15,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnabledOnOs(value = {OS.LINUX, OS.WINDOWS})
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestCase1 {
+public class TestPatternMatcher {
 
     @Test
     public void testMatcher() {
@@ -52,6 +54,20 @@ public class TestCase1 {
         assertArrayEquals(new int[] {2, 2}, pMatch.get(0).getSize());
         assertEquals(15, pMatch.get(1).getIndex());
         assertArrayEquals(new int[] {2, 2}, pMatch.get(1).getSize());
+    }
+
+    @Test
+    public void testMatcher3() {
+        String[] pattern = new String[]{
+                "#########",
+                "#P#P#P#P#",
+                "#########",
+        };
+        PatternGUIBuilder.IndexIterator iterator = new PatternGUIBuilder("", pattern).new IndexIterator("P", i -> true);
+        assertEquals(10, iterator.next());
+        assertEquals(12, iterator.next());
+        assertEquals(14, iterator.next());
+        assertEquals(16, iterator.next());
     }
 
 }
