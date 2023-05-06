@@ -42,17 +42,13 @@ public abstract class Container implements ContainerComponent {
     private Container parent;
 
     public Container(int xSize, int ySize) {
-        this(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
-    }
-
-    protected Container(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
         this.containers = new ConcurrentHashMap<>();
         this.elements = new ConcurrentHashMap<>();
         this.attachedSources = new CopyOnWriteArrayList<>();
         this.componentTunnel = new LocalComponentTunnel(this);
         this.eventBus = new EvtBus<>();
         this.parent = null;
-        this.selection = new Tetragon(corner1, corner2);
+        this.selection = new Tetragon(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
     }
 
     public abstract boolean appendContainer(Container container);
