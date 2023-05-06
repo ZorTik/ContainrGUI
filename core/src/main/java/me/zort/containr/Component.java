@@ -1,6 +1,7 @@
 package me.zort.containr;
 
 import me.zort.containr.builder.*;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,6 +30,10 @@ public interface Component {
 
     static @NotNull SimpleElementBuilder element() {
         return new SimpleElementBuilder();
+    }
+
+    static @NotNull SimpleElementBuilder element(ItemStack item) {
+        return new SimpleElementBuilder().item(item);
     }
 
     static @NotNull <T> SwitchableElementBuilder<T> switchableElement(Class<T> optionsType) {
