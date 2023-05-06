@@ -34,33 +34,31 @@ import static me.zort.containr.util.Util.runCatching;
  *
  * @author ZorTik
  */
+@ApiStatus.AvailableSince("0.1")
 @Getter
 public abstract class GUI extends ContainerHolder implements InventoryHolder, Cloneable {
 
-    @NotNull
-    public static PatternGUIBuilder ofPattern(@NotNull final Collection<String> pattern) {
+    public static @NotNull PatternGUIBuilder ofPattern(@NotNull final Collection<String> pattern) {
         return ofPattern(pattern.toArray(new String[0]));
     }
 
-    @NotNull
-    public static PatternGUIBuilder ofPattern(@NotNull final String[] pattern) {
+    public static @NotNull PatternGUIBuilder ofPattern(@NotNull final String[] pattern) {
         return new PatternGUIBuilder("", pattern);
     }
 
     private final Container container;
     private final Inventory inventory;
     private final String title;
-
-    @Setter
-    private boolean frozen = false;
-    private List<Integer> normalItemSlots;
-    private boolean initial = true;
     @Getter(onMethod_ = @NotNull)
     private final List<NormalEditHandler> normalEditHandlers;
     @Getter(value = AccessLevel.PROTECTED, onMethod_ = @NotNull)
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
 
-    public GUI(@NotNull final String title, final int rows) {
+    @Setter private boolean frozen = false;
+    private boolean initial = true;
+    private List<Integer> normalItemSlots;
+
+    public GUI(final @NotNull String title, final int rows) {
         this(new BasicInventoryFactory(title, rows));
     }
 
@@ -75,8 +73,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     }
 
     // User Input
-    @ApiStatus.OverrideOnly
-    public abstract void build(Player p);
+    @ApiStatus.OverrideOnly public abstract void build(Player p);
 
     /**
      * Adds handler that is invoked when normal item slot changes.
@@ -100,8 +97,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         this.normalItemSlots = Collections.synchronizedList(normalItemSlots);
     }
 
-    @NotNull
-    public final List<Integer> getNormalItemSlots() {
+    public final @NotNull List<Integer> getNormalItemSlots() {
         return new ArrayList<>(normalItemSlots);
     }
 
@@ -142,22 +138,23 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         p.closeInventory();
 
         List<Consumer<Player>> handlers = closeHandlers.get(reason);
-        if(handlers == null)
-            return;
+        if(handlers == null) return;
 
         handlers.forEach(handler -> runCatching(() -> handler.accept(p)));
     }
 
-    public void update(Player p) {
+    public void update(@NotNull Player p) {
         update(p, true);
     }
 
-    public void update(Player p, Class<? extends Element>... clazz) {
+    public void update(@NotNull Player p, Class<? extends Element>... clazz) {
         update(p, false, clazz);
     }
 
-    public void update(Player p, boolean clear, Class<? extends Element>... clazz) {
+    public void update(@NotNull Player p, boolean clear, Class<? extends Element>... clazz) {
         if(clear) clearInventory();
+
+        Objects.requireNonNull(p, "Player cannot be null");
 
         try {
             container.innerContainers().forEach(c -> c.refresh(p));
@@ -174,7 +171,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                 if(slot < inventory.getSize() && slot >= 0) {
                     inventory.setItem(slot, item);
                 } else {
-                    throw new IndexOutOfBoundsException("Cannot complete menu " + getClass().getSimpleName() + " for player " + p.getName() + " because index out of bounds: " + slot + " >= " + inventory.getSize());
+                    String err = "Cannot complete menu %s for player %s because index out of bounds: %d >= %d";
+                    throw new IndexOutOfBoundsException(String.format(err, getClass().getSimpleName(), p.getName(), slot, inventory.getSize()));
                 }
             }
         } catch(Exception ex) {
@@ -190,26 +188,19 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         Map<Integer, ItemStack> normalItems = normalItemSlots.stream()
                 .filter(i -> inventory.getItem(i) != null)
                 .collect(Collectors.toMap(i -> i, inventory::getItem));
+
         inventory.clear();
-        if(keepNormalItems) {
-            normalItems.forEach(inventory::setItem);
-        }
+
+        if(keepNormalItems) normalItems.forEach(inventory::setItem);
     }
 
-    public final boolean invokeElement(final @NotNull Player p,
-                                       final @NotNull ClickType clickType,
-                                       final @NotNull ItemStack clickedItem,
-                                       final @NotNull ItemStack cursorItem) {
-        Objects.requireNonNull(p, "Player cannot be null");
-        Objects.requireNonNull(clickType, "ClickType cannot be null");
-        Objects.requireNonNull(clickedItem, "ClickedItem cannot be null");
-        Objects.requireNonNull(cursorItem, "CursorItem cannot be null");
+    protected final boolean invokeElement(final @NotNull Player p, final @NotNull ClickType clickType,
+                                          final @NotNull ItemStack clickedItem, final @NotNull ItemStack cursorItem) {
+        requireNonNull(p, clickType, clickedItem, cursorItem);
 
         String id = new NBTItem(clickedItem).getString(Constants.ELEMENT_ID_KEY);
-        if(id == null) return false;
-        Optional<Pair<Container, Element>> elementOptional = container.findElementById(id);
-        if(!elementOptional.isPresent()) return false;
-        Pair<Container, Element> elementPair = elementOptional.get();
+        Pair<Container, Element> elementPair = container.findElementById(id).orElse(null);
+        if(elementPair == null) return false;
         Element element = elementPair.getValue();
         element.click(new ContextClickInfo(this, elementPair.getKey(), element, p, clickType, cursorItem));
         return true;
@@ -244,6 +235,12 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     @Override
     public GUI clone() {
         return (GUI) super.clone();
+    }
+
+    private static void requireNonNull(Object... objects) {
+        for(Object object : objects) {
+            Objects.requireNonNull(object);
+        }
     }
 
     public interface NormalEditHandler {

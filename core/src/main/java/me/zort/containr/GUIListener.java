@@ -1,18 +1,17 @@
-package me.zort.containr.internal;
+package me.zort.containr;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.zort.containr.Containr;
-import me.zort.containr.GUI;
-import me.zort.containr.GUIRepository;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.util.LinkedList;
@@ -50,9 +49,7 @@ public class GUIListener implements Listener {
                     }
                     return;
                 }
-                ClickType clickType = e.getClick();
-                ItemStack item = e.getCurrentItem();
-                gui.invokeElement(p, clickType, item, e.getCursor());
+                gui.invokeElement(p, e.getClick(), e.getCurrentItem(), e.getCursor());
             } else if(GUIRepository.hasOpen(p) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
                 // We don't want to allow players to drop items to gui with shift click.
                 e.setCancelled(true);

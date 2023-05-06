@@ -38,7 +38,6 @@ public abstract class Container implements ContainerComponent {
     private final EvtBus<LocalEventInterface> eventBus;
 
     private Tetragon selection;
-    @Getter
     private Container parent;
 
     public Container(final int xSize, final int ySize) {
@@ -52,18 +51,15 @@ public abstract class Container implements ContainerComponent {
     }
 
     public abstract boolean appendContainer(Container container);
-    @ApiStatus.OverrideOnly
-    public void init() {}
-    @ApiStatus.OverrideOnly
-    public void refresh(Player player) {}
+    @ApiStatus.OverrideOnly public void init() {}
+    @ApiStatus.OverrideOnly public void refresh(Player player) {}
 
     @ApiStatus.OverrideOnly
     public <T extends Element> Map<Integer, T> content(Class<T> clazz) {
         Map<Integer, T> content = new HashMap<>();
 
         // Emit event locally. Subscribers can modify the content map.
-        Event.UpdateEvent event = new Event.UpdateEvent(this, content);
-        eventBus.emit(event);
+        eventBus.emit(new Event.UpdateEvent(this, content));
 
         return content;
     }
@@ -183,7 +179,7 @@ public abstract class Container implements ContainerComponent {
         getElements().put(relativeIndex, element);
     }
 
-    public void moveAllByY(int yAddon, Class<?> filter) { // TODO: Test
+    public void moveAllByY(int yAddon, Class<?> filter) {
         Function<Map.Entry<Integer, ?>, Boolean> func = entry -> filter == null || filter.isAssignableFrom(entry.getValue().getClass());
         Map<Integer, Container> containers = this.containers.entrySet().stream()
                 .filter(func::apply)
@@ -223,12 +219,13 @@ public abstract class Container implements ContainerComponent {
         });
     }
 
-    @ApiStatus.Internal
-    public void changeSelection(int xSize, int ySize) {
+    public @ApiStatus.Internal void changeSelection(int xSize, int ySize) {
         this.selection = new Tetragon(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
     }
 
-    public Optional<Pair<Container, Element>> findElementById(String id) {
+    public @NotNull Optional<Pair<Container, Element>> findElementById(String id) {
+        if (id == null) return Optional.empty();
+
         AtomicReference<Optional<Pair<Container, Element>>> result = new AtomicReference<>(elements.values().stream()
                 .filter(e -> e.getId().equals(id))
                 .map(e -> new Pair<>(this, e))
@@ -243,7 +240,7 @@ public abstract class Container implements ContainerComponent {
         return result.get();
     }
 
-    public IntStream searchContainers(Class<? extends Container> containerClass) {
+    public @NotNull IntStream searchContainers(Class<? extends Container> containerClass) {
         return containers.entrySet().stream()
                 .filter(entry -> entry.getValue().getClass().equals(containerClass))
                 .mapToInt(Map.Entry::getKey);
@@ -253,7 +250,7 @@ public abstract class Container implements ContainerComponent {
         return searchContainers(containerClass).findFirst().orElse(-1);
     }
 
-    public List<Container> getContainers(boolean deep) {
+    public @NotNull List<Container> getContainers(boolean deep) {
         List<Container> containers = new ArrayList<>(getContainers().values());
         if(deep)
             containers.addAll(containers
