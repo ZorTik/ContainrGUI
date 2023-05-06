@@ -21,10 +21,7 @@ public final class Containers {
                 width = 1;
                 break;
         }
-        return new StaticContainer(
-                new Pair<>(0, 0),
-                new Pair<>(width - 1, (inventory.getSize() / width) - 1)
-        );
+        return new StaticContainer(width, inventory.getSize() / width);
     }
 
 }

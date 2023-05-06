@@ -41,7 +41,7 @@ public abstract class Container implements ContainerComponent {
     @Getter
     private Container parent;
 
-    public Container(int xSize, int ySize) {
+    public Container(final int xSize, final int ySize) {
         this.containers = new ConcurrentHashMap<>();
         this.elements = new ConcurrentHashMap<>();
         this.attachedSources = new CopyOnWriteArrayList<>();
