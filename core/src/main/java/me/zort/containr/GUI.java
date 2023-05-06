@@ -1,14 +1,13 @@
 package me.zort.containr;
 
 import com.google.common.collect.Maps;
-import lombok.SneakyThrows;
-import me.zort.containr.builder.PatternGUIBuilder;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import me.zort.containr.builder.PatternGUIBuilder;
 import me.zort.containr.factory.BasicInventoryFactory;
-import me.zort.containr.factory.CustomInventoryFactory;
 import me.zort.containr.internal.util.Containers;
 import me.zort.containr.internal.util.NBT;
 import me.zort.containr.internal.util.Pair;
@@ -16,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -64,12 +62,6 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
 
     public GUI(@NotNull final String title, final int rows) {
         this(new BasicInventoryFactory(title, rows));
-    }
-
-    @ApiStatus.ScheduledForRemoval
-    @Deprecated
-    public GUI(final @NotNull InventoryType type, final @NotNull String title) {
-        this(new CustomInventoryFactory(type, title));
     }
 
     public GUI(final @NotNull InventoryFactory inventoryFactory) {

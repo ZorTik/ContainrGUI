@@ -1,6 +1,9 @@
-package me.zort.containr;
+package me.zort.containr.builder;
 
 import lombok.RequiredArgsConstructor;
+import me.zort.containr.Container;
+import me.zort.containr.PagedContainer;
+import me.zort.containr.StaticContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;

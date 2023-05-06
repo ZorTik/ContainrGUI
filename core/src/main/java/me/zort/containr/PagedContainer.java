@@ -28,10 +28,6 @@ public class PagedContainer extends Container {
         super(xSize, ySize);
     }
 
-    protected PagedContainer(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
-        super(corner1, corner2);
-    }
-
     public final void switchPage(int pageIndex) {
         int oldPageIndex = currentPageIndex;
         this.currentPageIndex = pageIndex;

@@ -18,10 +18,6 @@ public class StaticContainer extends Container {
         super(xSize, ySize);
     }
 
-    public StaticContainer(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
-        super(corner1, corner2);
-    }
-
     @Override
     public boolean appendContainer(Container container) {
         PrimitiveIterator.OfInt positionCandidates = getFreeSlots()
