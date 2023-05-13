@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -25,7 +26,7 @@ public class SimpleElementBuilder implements ElementBuilder<Element> {
         return new SimpleElementBuilder();
     }
 
-    private Supplier<ItemStack> itemSupplier = null;
+    private Function<Player, ItemStack> itemFunction = null;
     private Consumer<ContextClickInfo> clickConsumer = (info) -> {};
 
     public final SimpleElementBuilder item(@Nullable ItemStack item) {
@@ -33,8 +34,16 @@ public class SimpleElementBuilder implements ElementBuilder<Element> {
     }
 
     public final SimpleElementBuilder item(@NotNull Supplier<ItemStack> itemSupplier) {
-        this.itemSupplier = itemSupplier;
+        return item(player -> itemSupplier.get());
+    }
+
+    public final SimpleElementBuilder item(@NotNull Function<Player, ItemStack> itemFunction) {
+        this.itemFunction = itemFunction;
         return this;
+    }
+
+    public final SimpleElementBuilder click(Runnable runnable) {
+        return click(info -> runnable.run());
     }
 
     public final SimpleElementBuilder click(@NotNull Consumer<ContextClickInfo> click) {
@@ -51,7 +60,7 @@ public class SimpleElementBuilder implements ElementBuilder<Element> {
             @Nullable
             @Override
             public ItemStack item(Player player) {
-                return itemSupplier.get();
+                return itemFunction.apply(player);
             }
         };
     }
