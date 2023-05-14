@@ -20,12 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
+    private final Map<Integer, Container> containers = new ConcurrentHashMap<>();
+    private final Map<Integer, Element> elements = new ConcurrentHashMap<>();
     private final String[] pattern;
-    private final Map<Integer, Container> containers;
-    private final Map<Integer, Element> elements;
     private final int rows;
     private String title;
-    private Element filler;
+    private Element filler = null;
 
     public PatternGUIBuilder(final @NotNull String title, final @NotNull String[] pattern) {
         checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
@@ -33,9 +33,6 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.title = title;
         this.rows = pattern.length;
         this.pattern = pattern;
-        this.containers = new ConcurrentHashMap<>();
-        this.elements = new ConcurrentHashMap<>();
-        this.filler = null;
     }
 
     public @NotNull PatternGUIBuilder andTitle(final @NotNull String title) {
@@ -80,7 +77,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      */
     public PatternGUIBuilder addQueue(final @NotNull String symbol, Element... elementsToAdd) {
         checkSymbol(symbol);
-        IndexIterator iter = new IndexIterator(symbol, i -> !elements.containsKey(i));
+        SymbolMatchIterator iter = new SymbolMatchIterator(symbol, i -> !elements.containsKey(i));
         for(Element element : elementsToAdd) {
             if(!iter.hasNext()) break;
             elements.put(iter.next(), element);
@@ -90,7 +87,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
         checkSymbol(symbol);
-        new IndexIterator(symbol, i -> true).forEachRemaining(i -> elements.put(i, element));
+        new SymbolMatchIterator(symbol, i -> true).forEachRemaining(i -> elements.put(i, element));
         return this;
     }
 
@@ -104,21 +101,15 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public @NotNull AnimatedGUI build(int period, TimeUnit unit) {
-        return new AnimatedGUI(title, rows, period, unit) {
-            @Override
-            public void build(Player p) {
-                doBuild(this);
-            }
-        };
+        return new SimpleGUIBuilder().title(title).rows(rows)
+                .prepare(this::doBuild)
+                .build(period, unit);
     }
 
     public @NotNull GUI build() {
-        return new GUI(title, rows) {
-            @Override
-            public void build(Player p) {
-                doBuild(this);
-            }
-        };
+        return new SimpleGUIBuilder().title(title).rows(rows)
+                .prepare(this::doBuild)
+                .build();
     }
 
     public <T extends GUI> @NotNull T build(PatternGUIFactory<T> factory) {
@@ -139,12 +130,12 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         T create(String title, int rows, Consumer<GUI> doBuildFunction);
     }
 
-    class IndexIterator implements Iterator<Integer> {
+    class SymbolMatchIterator implements Iterator<Integer> {
 
         private final List<Integer> availableIndexes;
         private int current;
 
-        public IndexIterator(@NotNull final String symbol, @NotNull final Predicate<Integer> pred) {
+        public SymbolMatchIterator(@NotNull final String symbol, @NotNull final Predicate<Integer> pred) {
             this.availableIndexes = new ArrayList<>();
             this.current = -1;
 

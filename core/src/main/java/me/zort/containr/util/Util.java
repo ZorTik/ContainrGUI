@@ -1,14 +1,14 @@
 package me.zort.containr.util;
 
 import me.zort.containr.Container;
-import me.zort.containr.geometry.Tetragon;
+import me.zort.containr.geometry.Region;
 
 public final class Util {
 
     public static int[] relativeToRealCoords(int[] relative, Container container) {
-        Tetragon tetragon = container.getSelection();
-        int cornerX = tetragon.xMin();
-        int cornerY = tetragon.yMin();
+        Region region = container.getSelection();
+        int cornerX = region.xMin();
+        int cornerY = region.yMin();
         return new int[] {relative[0] + cornerX, relative[1] + cornerY};
     }
 

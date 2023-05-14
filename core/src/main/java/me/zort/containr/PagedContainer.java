@@ -1,8 +1,7 @@
 package me.zort.containr;
 
 import com.google.common.collect.Maps;
-import me.zort.containr.geometry.Tetragon;
-import me.zort.containr.internal.util.Pair;
+import me.zort.containr.geometry.Region;
 import me.zort.containr.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -28,25 +27,26 @@ public class PagedContainer extends Container {
         super(xSize, ySize);
     }
 
-    public final void switchPage(int pageIndex) {
+    public void switchPage(int pageIndex) {
         int oldPageIndex = currentPageIndex;
         this.currentPageIndex = pageIndex;
 
         onPageSwitch(oldPageIndex, currentPageIndex);
     }
 
-    public final boolean nextPage() {
+    public boolean nextPage() {
         if(isLastPage()) return false;
         switchPage(getCurrentPageIndex() + 1);
         return true;
     }
 
-    public final boolean previousPage() {
+    public boolean previousPage() {
         if(isFirstPage()) return false;
         switchPage(getCurrentPageIndex() - 1);
         return true;
     }
 
+    @Deprecated
     @ApiStatus.OverrideOnly
     public void onPageSwitch(int before, int after) {}
 
@@ -84,7 +84,7 @@ public class PagedContainer extends Container {
         }
         int[] positionRealCoords = convertElementRealPosToCoords(convertElementPosToRealPos(positionRelativeIndex % getSelection().size()));
         int pageIndex = convertElementRealPosToCoords(convertElementPosToRealPos(positionRelativeIndex))[1] / getSelection().ySideSize();
-        Tetragon selection = container.getSelection();
+        Region selection = container.getSelection();
         selection.moveByLeftX(positionRealCoords[0]);
         selection.moveByTopY(positionRealCoords[1]);
         if(getContainers().entrySet().stream()

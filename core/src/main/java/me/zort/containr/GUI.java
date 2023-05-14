@@ -20,6 +20,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -73,7 +74,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     }
 
     // User Input
-    @ApiStatus.OverrideOnly public abstract void build(Player p);
+    @ApiStatus.OverrideOnly
+    public abstract void build(Player p);
 
     /**
      * Adds handler that is invoked when normal item slot changes.
@@ -194,16 +196,15 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         if(keepNormalItems) normalItems.forEach(inventory::setItem);
     }
 
-    protected final boolean invokeElement(final @NotNull Player p, final @NotNull ClickType clickType,
-                                          final @NotNull ItemStack clickedItem, final @NotNull ItemStack cursorItem) {
-        requireNonNull(p, clickType, clickedItem, cursorItem);
+    protected final void invokeElement(final @NotNull Player p, final @NotNull ClickType clickType,
+                                       final @NotNull ItemStack clickedItem, final @Nullable ItemStack cursorItem) {
+        requireNonNull(p, clickType, clickedItem);
 
         String id = new NBTItem(clickedItem).getString(Constants.ELEMENT_ID_KEY);
         Pair<Container, Element> elementPair = container.findElementById(id).orElse(null);
-        if(elementPair == null) return false;
+        if(elementPair == null) return;
         Element element = elementPair.getValue();
         element.click(new ContextClickInfo(this, elementPair.getKey(), element, p, clickType, cursorItem));
-        return true;
     }
 
     public final @NotNull Map<Integer, ItemStack> getNormalItems() {

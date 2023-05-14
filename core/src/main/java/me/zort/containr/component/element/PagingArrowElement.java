@@ -18,7 +18,7 @@ public class PagingArrowElement extends Element {
     public static final String L_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWVkNzg4MjI1NzYzMTdiMDQ4ZWVhOTIyMjdjZDg1ZjdhZmNjNDQxNDhkY2I4MzI3MzNiYWNjYjhlYjU2ZmExIn19fQ==";
     public static final String R_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzE1NDQ1ZGExNmZhYjY3ZmNkODI3ZjcxYmFlOWMxZDJmOTBjNzNlYjJjMWJkMWVmOGQ4Mzk2Y2Q4ZTgifX19";
 
-    private final AtomicReference<PagedContainer> container;
+    private final AtomicReference<PagedContainer> containerReference;
     private final boolean left;
     private final String title;
     private final String texture;
@@ -33,12 +33,12 @@ public class PagingArrowElement extends Element {
 
     @Override
     public void click(ContextClickInfo info) {
-        PagedContainer localContainer = container.get();
-        if (localContainer == null) return;
+        PagedContainer container = containerReference.get();
+        if (container == null) return;
         if (left)
-            localContainer.previousPage();
+            container.previousPage();
         else
-            localContainer.nextPage();
+            container.nextPage();
         info.getGui().update(info.getPlayer());
     }
 

@@ -29,29 +29,29 @@ public class SimpleElementBuilder implements ElementBuilder<Element> {
     private Function<Player, ItemStack> itemFunction = null;
     private Consumer<ContextClickInfo> clickConsumer = (info) -> {};
 
-    public final SimpleElementBuilder item(@Nullable ItemStack item) {
+    public final @NotNull SimpleElementBuilder item(@Nullable ItemStack item) {
         return item(() -> item);
     }
 
-    public final SimpleElementBuilder item(@NotNull Supplier<ItemStack> itemSupplier) {
+    public final @NotNull SimpleElementBuilder item(@NotNull Supplier<ItemStack> itemSupplier) {
         return item(player -> itemSupplier.get());
     }
 
-    public final SimpleElementBuilder item(@NotNull Function<Player, ItemStack> itemFunction) {
+    public final @NotNull SimpleElementBuilder item(@NotNull Function<Player, ItemStack> itemFunction) {
         this.itemFunction = itemFunction;
         return this;
     }
 
-    public final SimpleElementBuilder click(Runnable runnable) {
+    public final @NotNull SimpleElementBuilder click(Runnable runnable) {
         return click(info -> runnable.run());
     }
 
-    public final SimpleElementBuilder click(@NotNull Consumer<ContextClickInfo> click) {
+    public final @NotNull SimpleElementBuilder click(@NotNull Consumer<ContextClickInfo> click) {
         this.clickConsumer = click;
         return this;
     }
 
-    public Element build() {
+    public @NotNull Element build() {
         return new Element() {
             @Override
             public void click(ContextClickInfo info) {
