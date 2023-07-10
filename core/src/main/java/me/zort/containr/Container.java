@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.zort.containr.evt.EvtBus;
-import me.zort.containr.geometry.Tetragon;
+import me.zort.containr.geometry.Region;
 import me.zort.containr.internal.util.Pair;
 import me.zort.containr.util.Util;
 import org.apache.commons.lang.RandomStringUtils;
@@ -36,9 +36,7 @@ public abstract class Container implements ContainerComponent {
     private final List<ComponentSource> attachedSources;
     private final ComponentTunnel componentTunnel;
     private final EvtBus<LocalEventInterface> eventBus;
-
-    private Tetragon selection;
-    @Getter
+    private final Region selection;
     private Container parent;
 
     public Container(final int xSize, final int ySize) {
@@ -48,22 +46,40 @@ public abstract class Container implements ContainerComponent {
         this.componentTunnel = new LocalComponentTunnel(this);
         this.eventBus = new EvtBus<>();
         this.parent = null;
-        this.selection = new Tetragon(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
+        this.selection = new Region(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
     }
 
+    /**
+     * Appends another container to this container.
+     * Since every container type has different implementation of
+     * setting containers, this is not implemented here.
+     *
+     * @param container The container to append
+     * @return Whether the container was appended successfully
+     */
     public abstract boolean appendContainer(Container container);
-    @ApiStatus.OverrideOnly
-    public void init() {}
-    @ApiStatus.OverrideOnly
-    public void refresh(Player player) {}
+
+    /**
+     * Initialization function called on first component mount.
+     * Should contain content initialization code.
+     */
+    @ApiStatus.OverrideOnly public void init() {}
+
+    /**
+     * Called on every {@link GUI#update(Player, boolean, Class[])}.
+     * This should contain logic that needs to be refreshed on every
+     * menu update.
+     *
+     * @param player The player that is subject of the update
+     */
+    @ApiStatus.OverrideOnly public void refresh(Player player) {}
 
     @ApiStatus.OverrideOnly
     public <T extends Element> Map<Integer, T> content(Class<T> clazz) {
         Map<Integer, T> content = new HashMap<>();
 
         // Emit event locally. Subscribers can modify the content map.
-        Event.UpdateEvent event = new Event.UpdateEvent(this, content);
-        eventBus.emit(event);
+        eventBus.emit(new Event.UpdateEvent(this, content));
 
         return content;
     }
@@ -107,7 +123,7 @@ public abstract class Container implements ContainerComponent {
     @Deprecated
     public boolean setContainer(@NotNull Container container, int positionRelativeIndex) {
         int[] positionRealCoords = convertElementRealPosToCoords(convertElementPosToRealPos(positionRelativeIndex));
-        Tetragon selection = container.getSelection();
+        Region selection = container.getSelection();
         selection.moveByLeftX(positionRealCoords[0]);
         selection.moveByTopY(positionRealCoords[1]);
         if(containers.values().stream().noneMatch(c -> c.getSelection().collidesWith(selection))) {
@@ -183,7 +199,7 @@ public abstract class Container implements ContainerComponent {
         getElements().put(relativeIndex, element);
     }
 
-    public void moveAllByY(int yAddon, Class<?> filter) { // TODO: Test
+    public void moveAllByY(int yAddon, Class<?> filter) {
         Function<Map.Entry<Integer, ?>, Boolean> func = entry -> filter == null || filter.isAssignableFrom(entry.getValue().getClass());
         Map<Integer, Container> containers = this.containers.entrySet().stream()
                 .filter(func::apply)
@@ -204,7 +220,7 @@ public abstract class Container implements ContainerComponent {
 
     public void compress() {
         containers.values().forEach(c -> {
-            Tetragon inner = c.getSelection();
+            Region inner = c.getSelection();
             int[] exceedingCoords = inner.getExceedingCoords(selection);
             if(inner.fitsInOtherByX(selection.xSideSize())) {
                 inner.moveByLeftX(
@@ -223,12 +239,9 @@ public abstract class Container implements ContainerComponent {
         });
     }
 
-    @ApiStatus.Internal
-    public void changeSelection(int xSize, int ySize) {
-        this.selection = new Tetragon(new Pair<>(0, 0), new Pair<>(xSize - 1, ySize - 1));
-    }
+    public @NotNull Optional<Pair<Container, Element>> findElementById(String id) {
+        if (id == null) return Optional.empty();
 
-    public Optional<Pair<Container, Element>> findElementById(String id) {
         AtomicReference<Optional<Pair<Container, Element>>> result = new AtomicReference<>(elements.values().stream()
                 .filter(e -> e.getId().equals(id))
                 .map(e -> new Pair<>(this, e))
@@ -243,7 +256,7 @@ public abstract class Container implements ContainerComponent {
         return result.get();
     }
 
-    public IntStream searchContainers(Class<? extends Container> containerClass) {
+    public @NotNull IntStream searchContainers(Class<? extends Container> containerClass) {
         return containers.entrySet().stream()
                 .filter(entry -> entry.getValue().getClass().equals(containerClass))
                 .mapToInt(Map.Entry::getKey);
@@ -253,7 +266,7 @@ public abstract class Container implements ContainerComponent {
         return searchContainers(containerClass).findFirst().orElse(-1);
     }
 
-    public List<Container> getContainers(boolean deep) {
+    public @NotNull List<Container> getContainers(boolean deep) {
         List<Container> containers = new ArrayList<>(getContainers().values());
         if(deep)
             containers.addAll(containers

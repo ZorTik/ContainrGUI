@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ItemElement extends Element {

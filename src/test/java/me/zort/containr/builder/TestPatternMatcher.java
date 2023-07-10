@@ -63,7 +63,7 @@ public class TestPatternMatcher {
                 "#P#P#P#P#",
                 "#########",
         };
-        PatternGUIBuilder.IndexIterator iterator = new PatternGUIBuilder("", pattern).new IndexIterator("P", i -> true);
+        PatternGUIBuilder.SymbolMatchIterator iterator = new PatternGUIBuilder("", pattern).new SymbolMatchIterator("P", i -> true);
         assertEquals(10, iterator.next());
         assertEquals(12, iterator.next());
         assertEquals(14, iterator.next());

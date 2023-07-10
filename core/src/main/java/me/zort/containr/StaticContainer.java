@@ -2,7 +2,6 @@ package me.zort.containr;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.zort.containr.internal.util.Pair;
 import me.zort.containr.util.Util;
 
 import java.util.*;

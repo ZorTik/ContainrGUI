@@ -1,14 +1,11 @@
 package me.zort.containr;
 
-import me.zort.containr.internal.GUIListener;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.bukkit.Bukkit.getServer;
 

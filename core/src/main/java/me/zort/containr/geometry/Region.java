@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 @AllArgsConstructor
 @Data
-public class Tetragon implements Cloneable {
+public final class Region implements Cloneable {
 
     private Pair<Integer, Integer> corner1;
     private Pair<Integer, Integer> corner2;
@@ -35,20 +35,20 @@ public class Tetragon implements Cloneable {
         return ySideSize() <= yLength;
     }
 
-    public void alignTopInRow(Tetragon tetragon) {
-        moveByTopY(tetragon.yMax() + 1);
+    public void alignTopInRow(Region region) {
+        moveByTopY(region.yMax() + 1);
     }
 
-    public void alignLeftInRow(Tetragon tetragon) {
-        moveByLeftX(tetragon.xMax() + 1);
+    public void alignLeftInRow(Region region) {
+        moveByLeftX(region.xMax() + 1);
     }
 
-    public void alignTopBy(Tetragon tetragon) {
-        moveByTopY(tetragon.yMin());
+    public void alignTopBy(Region region) {
+        moveByTopY(region.yMin());
     }
 
-    public void alignLeftBy(Tetragon tetragon) {
-        moveByLeftX(tetragon.xMin());
+    public void alignLeftBy(Region region) {
+        moveByLeftX(region.xMin());
     }
 
     public void moveByTopY(int topY) {
@@ -67,15 +67,15 @@ public class Tetragon implements Cloneable {
         xMinCorner.setKey(xMinCorner.getKey() + difference);
     }
 
-    public boolean collidesWith(Tetragon tetragon) {
+    public boolean collidesWith(Region region) {
         int xMin = xMin();
         int yMin = yMin();
         int xSide = xSideSize();
         int ySide = ySideSize();
-        int x1 = tetragon.getCorner1().getKey();
-        int x2 = tetragon.getCorner2().getKey();
-        int y1 = tetragon.getCorner1().getValue();
-        int y2 = tetragon.getCorner2().getValue();
+        int x1 = region.getCorner1().getKey();
+        int x2 = region.getCorner2().getKey();
+        int y1 = region.getCorner1().getValue();
+        int y2 = region.getCorner2().getValue();
         return
                 ((x1 >= xMin && x1 < xMin + xSide) ||
                 (x2 >= xMin && x2 < xMin + xSide)) &&
@@ -89,8 +89,8 @@ public class Tetragon implements Cloneable {
         return x >= xMin() && x <= xMax() && y >= yMin() && y <= yMax();
     }
 
-    public boolean isInside(Tetragon tetragon) {
-        int[] c = getExceedingCoords(tetragon);
+    public boolean isInside(Region region) {
+        int[] c = getExceedingCoords(region);
         return c[0] == 0 && c[1] == 0 && c[2] == 0 && c[3] == 0;
     }
 
@@ -105,33 +105,33 @@ public class Tetragon implements Cloneable {
         return Stream.of(streams).flatMapToInt(i -> i);
     }
 
-    public int[] getExceedingCoords(Tetragon tetragon) {
+    public int[] getExceedingCoords(Region region) {
         int[] result = new int[4];
-        int[] xExceeding = getExceedingXCoord(tetragon);
+        int[] xExceeding = getExceedingXCoord(region);
         result[0] = xExceeding[0];
         result[1] = xExceeding[1];
-        int[] yExceeding = getExceedingXCoord(tetragon);
+        int[] yExceeding = getExceedingXCoord(region);
         result[2] = yExceeding[0];
         result[3] = yExceeding[1];
         return result;
     }
 
-    public int[] getExceedingXCoord(Tetragon tetragon) {
+    public int[] getExceedingXCoord(Region region) {
         int[] result = new int[2];
-        int xMinDifference = difference(tetragon.xMin(), xMin());
+        int xMinDifference = difference(region.xMin(), xMin());
         if(xMinDifference > 0) xMinDifference = 0;
-        int xMaxDifference = difference(tetragon.xMax(), xMax());
+        int xMaxDifference = difference(region.xMax(), xMax());
         if(xMaxDifference < 0) xMaxDifference = 0;
         result[0] = xMinDifference;
         result[1] = xMaxDifference;
         return result;
     }
 
-    public int[] getExceedingYCoord(Tetragon tetragon) {
+    public int[] getExceedingYCoord(Region region) {
         int[] result = new int[2];
-        int yMinDifference = difference(tetragon.yMin(), yMin());
+        int yMinDifference = difference(region.yMin(), yMin());
         if(yMinDifference > 0) yMinDifference = 0;
-        int yMaxDifference = difference(tetragon.yMax(), yMax());
+        int yMaxDifference = difference(region.yMax(), yMax());
         if(yMaxDifference < 0) yMaxDifference = 0;
         result[0] = yMinDifference;
         result[1] = yMaxDifference;
@@ -198,12 +198,12 @@ public class Tetragon implements Cloneable {
         return Integer.compare(target, current) * (Math.max(target, current) - Math.min(target, current));
     }
 
-    public Tetragon clone() {
+    public Region clone() {
         return clone(corner1, corner2);
     }
 
-    public Tetragon clone(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
-        return new Tetragon(corner1, corner2);
+    public Region clone(Pair<Integer, Integer> corner1, Pair<Integer, Integer> corner2) {
+        return new Region(corner1, corner2);
     }
 
 }

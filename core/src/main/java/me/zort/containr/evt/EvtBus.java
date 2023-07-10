@@ -8,11 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class EvtBus<T> {
 
-    private final Map<UUID, LocalEntryWrapper<T>> entries = new ConcurrentHashMap<>();
+    private final Map<UUID, ListenerWrapper<T>> entries = new ConcurrentHashMap<>();
 
     public <E extends T> UUID on(Class<E> evt, EvtListener<E> listener) {
         UUID uuid = UUID.randomUUID();
-        entries.put(uuid, new LocalEntryWrapper<>(evt, listener));
+        entries.put(uuid, new ListenerWrapper<>(evt, listener));
         return uuid;
     }
 
@@ -21,7 +21,7 @@ public class EvtBus<T> {
     }
 
     public void emit(T eventObject) {
-        for (LocalEntryWrapper<T> entry : entries.values()) {
+        for (ListenerWrapper<T> entry : entries.values()) {
             entry.onEvent(eventObject);
         }
     }
@@ -32,7 +32,7 @@ public class EvtBus<T> {
 
     @SuppressWarnings("unchecked, rawtypes")
     @RequiredArgsConstructor
-    private static final class LocalEntryWrapper<I> implements EvtListener<I> {
+    private static final class ListenerWrapper<I> implements EvtListener<I> {
 
         private final Class<? extends I> evtTypeSuper;
         private final EvtListener thatListener;
