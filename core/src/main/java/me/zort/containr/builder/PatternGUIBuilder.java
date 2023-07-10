@@ -35,6 +35,12 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.pattern = pattern;
     }
 
+    /**
+     * Sets a title to the GUI.
+     *
+     * @param title The title to set.
+     * @return The current builder.
+     */
     public @NotNull PatternGUIBuilder andTitle(final @NotNull String title) {
         this.title = title;
         return this;
@@ -49,16 +55,11 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     @SuppressWarnings("unused")
     public <T extends Container> @NotNull PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
-        for(PatternContainerMatcher.SizeMatch match
-                : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
+        for(PatternContainerMatcher.SizeMatch match : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
             T container = Objects.requireNonNull(containerFactory).create(match.getSize()[0], match.getSize()[1]);
-            putContainerMatch(match, container);
+            this.containers.put(match.getIndex(), container);
         }
         return this;
-    }
-
-    private void putContainerMatch(final @NotNull PatternContainerMatcher.SizeMatch match, final @NotNull Container container) {
-        this.containers.put(match.getIndex(), container);
     }
 
     /**

@@ -73,7 +73,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         setNormalItemSlots();
     }
 
-    // User Input
+    // User should implement a gui content filling logic here.
     @ApiStatus.OverrideOnly
     public abstract void build(Player p);
 
@@ -134,8 +134,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         close(p, CloseReason.BY_METHOD);
     }
 
-    @ApiStatus.Internal
-    public void close(Player p, CloseReason reason) {
+    void close(Player p, CloseReason reason) {
         GUIRepository.remove(p.getName());
         p.closeInventory();
 
