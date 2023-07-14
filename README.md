@@ -14,7 +14,7 @@ Creating a static GUI (Graphical User Interface) can be a tedious and time-consu
 
 Hello World:
 ```java
-GUI gui = Component.gui()
+Component.gui()
     .title("GUI Title")
     .rows(3)
     .prepare((g) -> {
@@ -31,9 +31,8 @@ GUI gui = Component.gui()
 	    })
 	    .build());
     })
-    .build();
-    
-gui.open(player);
+    .build()
+    .open(player);
 ```
 [More on new Wiki](https://github.com/ZorTik/ContainrGUI/wiki)
 
