@@ -3,11 +3,14 @@ package me.zort.containr.builder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import me.zort.containr.*;
+import me.zort.containr.internal.util.ItemBuilder;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -22,8 +25,23 @@ import java.util.function.Supplier;
 @Getter(AccessLevel.PROTECTED)
 public class SimpleElementBuilder implements ElementBuilder<Element> {
 
-    public static SimpleElementBuilder b() {
+    public static @NotNull SimpleElementBuilder b() {
         return new SimpleElementBuilder();
+    }
+
+    public static @NotNull SimpleElementBuilder fromConfig(ConfigurationSection section) {
+        return fromConfig(section, (item, sec) -> {});
+    }
+
+    public static @NotNull SimpleElementBuilder fromConfig(
+            ConfigurationSection section,
+            BiConsumer<ItemBuilder, ConfigurationSection> modifier
+    ) {
+        ItemBuilder item = ItemBuilder.fromConfig(section);
+        return b().item(() -> {
+            modifier.accept(item, section);
+            return item.build();
+        });
     }
 
     private Function<Player, ItemStack> itemFunction = null;
@@ -48,6 +66,15 @@ public class SimpleElementBuilder implements ElementBuilder<Element> {
 
     public final @NotNull SimpleElementBuilder click(@NotNull Consumer<ContextClickInfo> click) {
         this.clickConsumer = click;
+        return this;
+    }
+
+    public final @NotNull SimpleElementBuilder addClick(@NotNull Consumer<ContextClickInfo> click) {
+        Consumer<ContextClickInfo> old = this.clickConsumer;
+        this.clickConsumer = info -> {
+            old.accept(info);
+            click.accept(info);
+        };
         return this;
     }
 
