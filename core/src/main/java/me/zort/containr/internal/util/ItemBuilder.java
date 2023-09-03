@@ -6,34 +6,53 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
-public class ItemBuilder {
+public final class ItemBuilder {
 
-    public static ItemBuilder newBuilder() {
+    public static @NotNull ItemBuilder fromConfig(ConfigurationSection section) {
+        Map<Enchantment, Integer> enchantments = Maps.newHashMap();
+        if(section.contains("enchantments")) {
+            section.getConfigurationSection("enchantments").getValues(false).forEach((k, v) -> {
+                enchantments.put(Enchantment.getByName(k), (int) v);
+            });
+        }
+        return newBuilder()
+                .withType(Material.valueOf(section.getString("type")))
+                .withData((short) section.getInt("data", 0))
+                .withAmount(section.getInt("amount", 1))
+                .withName(section.getString("name", ""))
+                .withLore(section.contains("lore") ? section.getStringList("lore") : Lists.newArrayList())
+                .withEnchantments(enchantments)
+                .withCustomModelData(section.getInt("custom_model_data"));
+    }
+
+    public static @NotNull ItemBuilder newBuilder() {
         return new ItemBuilder();
     }
 
-    public static ItemBuilder newBuilder(Material material) {
+    public static @NotNull ItemBuilder newBuilder(Material material) {
         return newBuilder(material, (short) 0);
     }
 
-    public static ItemBuilder newBuilder(Material material, short data) {
+    public static @NotNull ItemBuilder newBuilder(Material material, short data) {
         ItemBuilder itemBuilder = new ItemBuilder();
         return itemBuilder
                 .withType(material)
                 .withData(data);
     }
 
-    public static ItemBuilder newBuilder(ItemStack origin) {
+    public static @NotNull ItemBuilder newBuilder(ItemStack origin) {
         List<String> lore = origin.getItemMeta().getLore() != null ? origin.getItemMeta().getLore() : new ArrayList<>();
         return new ItemBuilder()
                 .withType(origin.getType())
@@ -43,7 +62,10 @@ public class ItemBuilder {
                 .withLore()
                 .lines(lore)
                 .and()
-                .withEnchantments(origin.getEnchantments());
+                .withEnchantments(origin.getEnchantments())
+                .withCustomModelData(origin.getItemMeta().hasCustomModelData()
+                        ? origin.getItemMeta().getCustomModelData()
+                        : -1);
     }
 
     private Material type;
@@ -52,6 +74,7 @@ public class ItemBuilder {
     private String name;
     private List<String> lore;
     private Map<Enchantment, Integer> enchantments;
+    private int customModelData;
 
     public ItemBuilder() {
         this.type = Material.AIR;
@@ -60,6 +83,7 @@ public class ItemBuilder {
         this.name = "";
         this.lore = Lists.newArrayList();
         this.enchantments = Maps.newHashMap();
+        this.customModelData = -1;
     }
 
     public ItemBuilder withType(Material type) {
@@ -101,6 +125,11 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder withCustomModelData(int customModelData) {
+        this.customModelData = customModelData;
+        return this;
+    }
+
     public ItemBuilder enchanted() {
         return withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
     }
@@ -127,6 +156,9 @@ public class ItemBuilder {
                     ItemFlag.HIDE_DESTROYS,
                     ItemFlag.HIDE_PLACED_ON,
                     ItemFlag.HIDE_POTION_EFFECTS);
+            if (customModelData != -1) {
+                meta.setCustomModelData(customModelData);
+            }
             item.setItemMeta(meta);
         }
         return item;

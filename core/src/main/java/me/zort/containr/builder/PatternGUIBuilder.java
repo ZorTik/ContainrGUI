@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.zort.containr.*;
 import me.zort.containr.component.element.ItemElement;
 import me.zort.containr.component.gui.AnimatedGUI;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +34,22 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         this.title = title;
         this.rows = pattern.length;
         this.pattern = pattern;
+    }
+
+    public static @NotNull PatternGUIBuilder fromConfig(ConfigurationSection section) {
+        PatternGUIBuilder builder = new PatternGUIBuilder(
+                section.getString("title", ""),
+                section.getStringList("pattern").toArray(new String[0])
+        );
+        if (section.contains("filler")) {
+            builder.andFill(Component.element(section.getConfigurationSection("filler")).build());
+        }
+        if (section.contains("items")) {
+            section.getConfigurationSection("items").getKeys(false).forEach(key -> {
+                builder.andMark(key, Component.element(section.getConfigurationSection("items." + key)).build());
+            });
+        }
+        return builder;
     }
 
     /**

@@ -1,8 +1,12 @@
 package me.zort.containr;
 
 import me.zort.containr.builder.*;
+import me.zort.containr.internal.util.ItemBuilder;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.BiConsumer;
 
 /**
  * Represents any component usable in the Containr library.
@@ -67,6 +71,17 @@ public interface Component {
      */
     static @NotNull SimpleElementBuilder element(ItemStack item) {
         return new SimpleElementBuilder().item(item);
+    }
+
+    static @NotNull SimpleElementBuilder element(ConfigurationSection section) {
+        return SimpleElementBuilder.fromConfig(section);
+    }
+
+    static @NotNull SimpleElementBuilder element(
+            ConfigurationSection section,
+            BiConsumer<ItemBuilder, ConfigurationSection> modifier
+    ) {
+        return SimpleElementBuilder.fromConfig(section, modifier);
     }
 
     /**
