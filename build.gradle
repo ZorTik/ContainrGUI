@@ -30,7 +30,7 @@ allprojects {
 dependencies {
     implementation project(':core')
     implementation group: 'org.jetbrains', name: 'annotations', version: '20.1.0'
-    implementation 'de.tr7zw:item-nbt-api:2.11.1'
+    implementation 'de.tr7zw:item-nbt-api:2.11.3'
     compileOnly 'io.projectreactor:reactor-core:3.5.2' // Should be included in using projects.
     compileOnly 'commons-lang:commons-lang:2.6'
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
