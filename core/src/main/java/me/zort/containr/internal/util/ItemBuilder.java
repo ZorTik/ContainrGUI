@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -31,10 +32,20 @@ public final class ItemBuilder {
                 .withType(Material.valueOf(section.getString("type")))
                 .withData((short) section.getInt("data", 0))
                 .withAmount(section.getInt("amount", 1))
-                .withName(section.getString("name", ""))
-                .withLore(section.contains("lore") ? section.getStringList("lore") : Lists.newArrayList())
+                .withName(colorize(section.getString("name", "")))
+                .withLore(colorize(section.contains("lore") ? section.getStringList("lore") : Lists.newArrayList()))
                 .withEnchantments(enchantments)
                 .withCustomModelData(section.getInt("custom_model_data"));
+    }
+
+    private static String colorize(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
+
+    private static List<String> colorize(List<String> s) {
+        List<String> colored = new ArrayList<>();
+        s.forEach(line -> colored.add(colorize(line)));
+        return colored;
     }
 
     public static @NotNull ItemBuilder newBuilder() {
