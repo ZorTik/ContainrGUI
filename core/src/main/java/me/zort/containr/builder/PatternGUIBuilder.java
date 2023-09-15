@@ -19,6 +19,12 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+/**
+ * A PatternGUIBuilder is utility that allows building complex GUIs
+ * based on text pattern that could possibly be put into the configuration.
+ *
+ * @author ZorTik
+ */
 public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     private final Map<Integer, Container> containers = new ConcurrentHashMap<>();
@@ -27,122 +33,6 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
     private final int rows;
     private String title;
     private Element filler = null;
-
-    public PatternGUIBuilder(final @NotNull String title, final @NotNull String[] pattern) {
-        checkArgument(pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
-        validatePatternWidth(pattern);
-        this.title = title;
-        this.rows = pattern.length;
-        this.pattern = pattern;
-    }
-
-    public static @NotNull PatternGUIBuilder fromConfig(ConfigurationSection section) {
-        PatternGUIBuilder builder = new PatternGUIBuilder(
-                section.getString("title", ""),
-                section.getStringList("pattern").toArray(new String[0])
-        );
-        if (section.contains("filler")) {
-            builder.andFill(Component.element(section.getConfigurationSection("filler")).build());
-        }
-        if (section.contains("items")) {
-            section.getConfigurationSection("items").getKeys(false).forEach(key -> {
-                builder.andMark(key, Component.element(section.getConfigurationSection("items." + key)).build());
-            });
-        }
-        return builder;
-    }
-
-    /**
-     * Sets a title to the GUI.
-     *
-     * @param title The title to set.
-     * @return The current builder.
-     */
-    public @NotNull PatternGUIBuilder andTitle(final @NotNull String title) {
-        this.title = title;
-        return this;
-    }
-
-    public <T extends Container> @NotNull PatternGUIBuilder andMark(String symbol, Class<T> typeClass, Consumer<T> initFunction) {
-        return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
-                .size(xSize, ySize)
-                .init(Objects.requireNonNull(initFunction))
-                .build());
-    }
-
-    @SuppressWarnings("unused")
-    public <T extends Container> @NotNull PatternGUIBuilder andMark(String symbol, Class<T> typeClass, ContainerFactoryHelper<T> containerFactory) {
-        for(PatternContainerMatcher.SizeMatch match : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
-            T container = Objects.requireNonNull(containerFactory).create(match.getSize()[0], match.getSize()[1]);
-            this.containers.put(match.getIndex(), container);
-        }
-        return this;
-    }
-
-    /**
-     * Puts an element to the queue for another symbol of the same type.
-     * This can be used to insert elements to ornaments without using
-     * containers.
-     * <p>
-     * Example:
-     * #X#X#X#
-     * -------
-     * If symbol on index 0 (first X from top left) is taken, the element
-     * is put to the next available index.
-     * @param symbol Symbol to be matched.
-     * @param elementsToAdd Elements to be put.
-     * @return This builder.
-     */
-    public PatternGUIBuilder addQueue(final @NotNull String symbol, Element... elementsToAdd) {
-        checkSymbol(symbol);
-        SymbolMatchIterator iter = new SymbolMatchIterator(symbol, i -> !elements.containsKey(i));
-        for(Element element : elementsToAdd) {
-            if(!iter.hasNext()) break;
-            elements.put(iter.next(), element);
-        }
-        return this;
-    }
-
-    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
-        checkSymbol(symbol);
-        new SymbolMatchIterator(symbol, i -> true).forEachRemaining(i -> elements.put(i, element));
-        return this;
-    }
-
-    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull ItemStack item) {
-        return andMark(symbol, ItemElement.on(item));
-    }
-
-    public PatternGUIBuilder andFill(final @Nullable Element element) {
-        this.filler = element;
-        return this;
-    }
-
-    public @NotNull AnimatedGUI build(int period, TimeUnit unit) {
-        return new SimpleGUIBuilder().title(title).rows(rows)
-                .prepare(this::doBuild)
-                .build(period, unit);
-    }
-
-    public @NotNull GUI build() {
-        return new SimpleGUIBuilder().title(title).rows(rows)
-                .prepare(this::doBuild)
-                .build();
-    }
-
-    public <T extends GUI> @NotNull T build(PatternGUIFactory<T> factory) {
-        return factory.create(title, rows, this::doBuild);
-    }
-
-    private void doBuild(GUI gui) {
-        Container container = gui.getContainer();
-        container.clear();
-        containers.forEach(container::setContainer);
-        elements.forEach(container::setElement);
-        if(filler != null) {
-            container.fillElement(filler);
-        }
-    }
 
     public interface PatternGUIFactory<T extends GUI> {
         T create(String title, int rows, Consumer<GUI> doBuildFunction);
@@ -267,6 +157,10 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     }
 
+    /**
+     * @deprecated Use {@link PatternContainerFactory} instead.
+     */
+    @Deprecated
     public interface ContainerFactoryHelper<T extends Container> {
 
         /**
@@ -280,6 +174,213 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
          */
         T create(int xSize, int ySize);
 
+    }
+
+    public interface PatternContainerFactory<T extends Container> {
+
+        /**
+         * Constructs a container based on found x and y sizes and
+         * an init function.
+         * These sizes are calculated from provided pattern in the
+         * {@link PatternGUIBuilder}.
+         *
+         * @param xSize X size.
+         * @param ySize Y size.
+         * @param initFunction An init function
+         * @return Constructed container.
+         */
+        T create(int xSize, int ySize, Consumer<T> initFunction);
+
+    }
+
+    public PatternGUIBuilder(final @NotNull String title, final @NotNull String[] pattern) {
+        checkArgument(
+                pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
+        validatePatternWidth(pattern);
+        this.title = title;
+        this.rows = pattern.length;
+        this.pattern = pattern;
+    }
+
+    /**
+     * Builds a new PatternGUIBuilder from bukkit ConfigurationSection to speed-up
+     * the development process.
+     * <p>
+     * Configuration section example:
+     * <pre>
+     *     # The GUI's title.
+     *     title: "My GUI"
+     *     # The GUI's pattern that represents a GUI layout.
+     *     # Symbols in the pattern are linked to the item specification in the
+     *     # 'items' section.
+     *     pattern:
+     *     - "#########"
+     *     - "#X#X#X#X#"
+     *     - "#########"
+     *     # Item that fills empty slots in the GUI. Could be same structure
+     *     # as the items sections.
+     *     filler:
+     *       type: "STAINED_GLASS_PANE"
+     *       data: 7
+     *     # Items that represent each mark (symbol) in the pattern above.
+     *     # Marks written here could be duplicate in in the pattern, but not
+     *     # in this items section.
+     *     items:
+     *       X:
+     *         type: "DIAMOND"
+     * </pre>
+     *
+     * @param section
+     * @return
+     */
+    public static @NotNull PatternGUIBuilder fromConfig(ConfigurationSection section) {
+        PatternGUIBuilder builder = new PatternGUIBuilder(
+                section.getString("title", ""),
+                section.getStringList("pattern").toArray(new String[0])
+        );
+        if (section.contains("filler")) {
+            builder.andFill(Component.element(section.getConfigurationSection("filler")).build());
+        }
+        if (section.contains("items")) {
+            section.getConfigurationSection("items").getKeys(false).forEach(key -> {
+                builder.andMark(key, Component.element(section.getConfigurationSection("items." + key)).build());
+            });
+        }
+        return builder;
+    }
+
+    /**
+     * Sets a title to the GUI.
+     *
+     * @param title The title to set.
+     * @return The current builder.
+     */
+    public @NotNull PatternGUIBuilder andTitle(final @NotNull String title) {
+        this.title = title;
+        return this;
+    }
+
+    public <T extends Container> @NotNull PatternGUIBuilder andMark(
+            String symbol,
+            Class<T> typeClass,
+            Consumer<T> initFunction
+    ) {
+        return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
+                .size(xSize, ySize)
+                .init(Objects.requireNonNull(initFunction))
+                .build());
+    }
+
+    /**
+     * @deprecated Use {@link #andMark(String, Class, PatternContainerFactory, Consumer)} instead.
+     */
+    @Deprecated
+    public <T extends Container> @NotNull PatternGUIBuilder andMark(
+            String symbol,
+            Class<T> typeClass,
+            ContainerFactoryHelper<T> containerFactory
+    ) {
+        return andMark(symbol, typeClass,
+                (xSize, ySize, initFunction) -> containerFactory.create(xSize, ySize),
+                c -> {}
+        );
+    }
+
+    @SuppressWarnings("unused")
+    public <T extends Container> @NotNull PatternGUIBuilder andMark(
+            String symbol,
+            Class<T> typeClass,
+            PatternContainerFactory<T> containerFactory,
+            Consumer<T> initFunction
+    ) {
+        for(PatternContainerMatcher.SizeMatch match
+                : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
+            T container = Objects.requireNonNull(containerFactory).create(
+                    match.getSize()[0],
+                    match.getSize()[1],
+                    initFunction
+            );
+            this.containers.put(match.getIndex(), container);
+        }
+        return this;
+    }
+
+    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
+        checkSymbol(symbol);
+        new SymbolMatchIterator(symbol, i -> true).forEachRemaining(i -> elements.put(i, element));
+        return this;
+    }
+
+    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull ItemStack item) {
+        return andMark(symbol, ItemElement.on(item));
+    }
+
+    /**
+     * Puts an element to the queue for another symbol of the same type.
+     * This can be used to insert elements to ornaments without using
+     * containers.
+     *
+     * @see #andQueue(String, Element...)
+     * @deprecated Use {@link #andQueue(String, Element...)} instead.
+     */
+    @Deprecated
+    public PatternGUIBuilder addQueue(final @NotNull String symbol, Element... elementsToAdd) {
+        return andQueue(symbol, elementsToAdd);
+    }
+
+    /**
+     * Puts an element to the queue for another symbol of the same type.
+     * This can be used to insert elements to ornaments without using
+     * containers.
+     * <p>
+     * Example:
+     * #X#X#X#
+     * -------
+     * If symbol on index 0 (first X from top left) is taken, the element
+     * is put to the next available index.
+     * @param symbol Symbol to be matched.
+     * @param elementsToAdd Elements to be put.
+     * @return This builder.
+     */
+    public PatternGUIBuilder andQueue(final @NotNull String symbol, Element... elementsToAdd) {
+        checkSymbol(symbol);
+        SymbolMatchIterator iter = new SymbolMatchIterator(symbol, i -> !elements.containsKey(i));
+        for(Element element : elementsToAdd) {
+            if(!iter.hasNext()) break;
+            elements.put(iter.next(), element);
+        }
+        return this;
+    }
+
+    public PatternGUIBuilder andFill(final @Nullable Element element) {
+        this.filler = element;
+        return this;
+    }
+
+    public @NotNull AnimatedGUI build(int period, TimeUnit unit) {
+        return new SimpleGUIBuilder().title(title).rows(rows)
+                .prepare(this::doBuild)
+                .build(period, unit);
+    }
+
+    public @NotNull GUI build() {
+        return new SimpleGUIBuilder().title(title).rows(rows)
+                .prepare(this::doBuild)
+                .build();
+    }
+
+    public <T extends GUI> @NotNull T build(PatternGUIFactory<T> factory) {
+        return factory.create(title, rows, this::doBuild);
+    }
+
+    private void doBuild(GUI gui) {
+        Container container = gui.getContainer();
+        container.clear();
+        containers.forEach(container::setContainer);
+        elements.forEach(container::setElement);
+        if(filler != null) {
+            container.fillElement(filler);
+        }
     }
 
     private static void checkSymbol(String symbol) {
