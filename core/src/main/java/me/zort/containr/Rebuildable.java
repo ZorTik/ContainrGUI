@@ -16,7 +16,9 @@ import org.jetbrains.annotations.ApiStatus;
  * </pre>
  *
  * @author ZorTik
+ * @deprecated Deprecated in favor of {@link Container#refresh(Player)}
  */
+@Deprecated
 public interface Rebuildable {
 
     /**
