@@ -116,7 +116,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
 
         if(initial) {
             // Init loop
-            initializeContainers();
+            initializeContainers(p);
         }
 
         if(update) update(p);
@@ -135,7 +135,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         }, 3L);
     }
 
-    private void initializeContainers() {
+    private void initializeContainers(Player p) {
+        updateContextInfo(p);
         List<Container> initList = new ArrayList<>();
         while(true) {
             // Init containers using lowering waves.
@@ -153,6 +154,10 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                 break;
             }
         }
+    }
+
+    private void updateContextInfo(Player p) {
+        container.setLastUpdateContext(new UpdateContext(this, p));
     }
 
     public void close(Player p) {
@@ -183,12 +188,8 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         Objects.requireNonNull(p, "Player cannot be null");
 
         try {
-            UpdateContext context = new UpdateContext(this, p);
-            container.setLastUpdateContext(context);
-            container.innerContainers().forEach(c -> {
-                c.setLastUpdateContext(context);
-                c.refresh(p);
-            });
+            updateContextInfo(p);
+            container.innerContainers().forEach(c -> c.refresh(p));
             Map<Integer, ?> content = container.content(clazz.length > 0 ? Arrays.asList(clazz) : null);
             content.keySet().forEach(slot -> {
                 if(slot < inventory.getSize() && slot >= 0 && inventory.getItem(slot) != null) inventory.setItem(slot, null);
