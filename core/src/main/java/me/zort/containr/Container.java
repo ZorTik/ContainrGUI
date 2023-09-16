@@ -130,7 +130,7 @@ public abstract class Container implements ContainerComponent {
         selection.moveByTopY(positionRealCoords[1]);
         if(containers.values().stream().noneMatch(c -> c.getSelection().collidesWith(selection))) {
             container.setParent(this);
-            container.init();
+            //container.init();
             containers.put(positionRelativeIndex, container);
             return true;
         }
