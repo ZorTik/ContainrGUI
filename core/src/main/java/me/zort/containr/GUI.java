@@ -158,6 +158,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         Objects.requireNonNull(p, "Player cannot be null");
 
         try {
+            container.setContextualUpdateGUI(this);
             container.innerContainers().forEach(c -> c.refresh(p));
             Map<Integer, ?> content = container.content(clazz.length > 0 ? Arrays.asList(clazz) : null);
             content.keySet().forEach(slot -> {
