@@ -114,9 +114,14 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         } else if(initial) build(p);
         GUIRepository.add(p.getName(), this);
 
+        if(initial) {
+            // Init loop
+            initializeContainers();
+        }
+
         if(update) update(p);
 
-        Bukkit.getScheduler().runTaskLater(Bukkit.getServer().getPluginManager().getPlugins()[0], () -> {
+        Bukkit.getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugins()[0], () -> {
             if(p.isOnline()) {
                 LinkedList<GUI> temp = new LinkedList<>(
                         GUIRepository.PREV_GUIS.containsKey(p.getName())
@@ -128,6 +133,26 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                 initial = false;
             }
         }, 3L);
+    }
+
+    private void initializeContainers() {
+        List<Container> initList = new ArrayList<>();
+        while(true) {
+            // Init containers using lowering waves.
+            final int initSizeBef = initList.size();
+            for (Container inner : container.innerContainers()) {
+                if (initList.contains(inner)) {
+                    continue;
+                }
+                inner.init();
+                initList.add(inner);
+            }
+            if(initList.size() == initSizeBef) {
+                // No more containers initialized, breaking
+                // the init loop.
+                break;
+            }
+        }
     }
 
     public void close(Player p) {

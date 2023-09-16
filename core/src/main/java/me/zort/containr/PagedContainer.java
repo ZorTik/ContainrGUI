@@ -92,7 +92,7 @@ public class PagedContainer extends Container {
                 .noneMatch(e -> e.getValue().getSelection().collidesWith(selection))) {
             if(!getContainers().containsKey(positionRelativeIndex) && !getElements().containsKey(positionRelativeIndex)) {
                 container.setParent(this);
-                container.init();
+                //container.init();
                 getContainers().put(positionRelativeIndex, container);
                 return true;
             } else return false;
