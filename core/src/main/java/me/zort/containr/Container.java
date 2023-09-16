@@ -12,6 +12,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +39,7 @@ public abstract class Container implements ContainerComponent {
     private final EvtBus<LocalEventInterface> eventBus;
     private final Region selection;
     private Container parent;
+    private UpdateContext lastUpdateContext = null;
 
     public Container(final int xSize, final int ySize) {
         this.containers = new ConcurrentHashMap<>();
@@ -297,6 +299,10 @@ public abstract class Container implements ContainerComponent {
         this.parent = parent;
     }
 
+    void setLastUpdateContext(UpdateContext context) {
+        this.lastUpdateContext = context;
+    }
+
     protected int[] convertElementRealPosToCoords(int pos) {
         //return Util.relativeToRealCoords(Util.pos(pos, selection.xSideSize()), this);
         return Util.pos(pos, 9);
@@ -331,6 +337,26 @@ public abstract class Container implements ContainerComponent {
         List<Element> elements = new ArrayList<>(this.elements.values());
         containers.values().forEach(c -> elements.addAll(c.innerElements()));
         return elements;
+    }
+
+    /**
+     * Returns context of last performed update by a GUI.
+     * This invocation is unsafe if there are more than one GUIs using this
+     * container instance.
+     *
+     * @return The context of last update
+     */
+    @Nullable
+    public UpdateContext getUpdateContextUnsafe() {
+        Container current = this;
+        UpdateContext ctx;
+        while ((ctx = current.lastUpdateContext) == null) {
+            current = current.getParent();
+            if(current == null) {
+                break;
+            }
+        }
+        return ctx;
     }
 
     @NotNull
