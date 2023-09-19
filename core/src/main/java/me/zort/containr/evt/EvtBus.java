@@ -1,6 +1,7 @@
 package me.zort.containr.evt;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +11,14 @@ public class EvtBus<T> {
 
     private final Map<UUID, ListenerWrapper<T>> entries = new ConcurrentHashMap<>();
 
-    public <E extends T> UUID on(Class<E> evt, EvtListener<E> listener) {
+    public <E extends T> @Nullable UUID on(Class<E> evt, EvtListener<E> listener) {
+        return on(evt, listener, false);
+    }
+
+    public <E extends T> @Nullable UUID on(Class<E> evt, EvtListener<E> listener, boolean requireOnly) {
+        if (requireOnly && entries.values().stream().anyMatch(w -> w.evtTypeSuper.equals(evt))) {
+            return null;
+        }
         UUID uuid = UUID.randomUUID();
         entries.put(uuid, new ListenerWrapper<>(evt, listener));
         return uuid;
