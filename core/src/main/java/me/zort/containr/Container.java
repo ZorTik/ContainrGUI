@@ -96,6 +96,11 @@ public abstract class Container implements ContainerComponent {
         return res;
     }
 
+    public void emitEventRecursively(LocalEventInterface event) {
+        eventBus.emit(event);
+        containers.values().forEach(c -> c.emitEventRecursively(event));
+    }
+
     public void clear() {
         getContainers().clear();
         getElements().clear();
@@ -389,8 +394,8 @@ public abstract class Container implements ContainerComponent {
         }
     }
 
-    private interface LocalEventInterface {
-        Container getContainer();
+    public interface LocalEventInterface {
+        @Nullable Container getContainer();
     }
 
     public static final class Event {
@@ -409,7 +414,18 @@ public abstract class Container implements ContainerComponent {
                         .max().orElse(-1) + 1;
                 content.put(index, element);
             }
+        }
 
+        @RequiredArgsConstructor
+        @Getter
+        public static class OpenEvent implements LocalEventInterface {
+            private final GUI gui;
+            private final Player player;
+
+            @Override
+            public @Nullable Container getContainer() {
+                return null;
+            }
         }
 
     }

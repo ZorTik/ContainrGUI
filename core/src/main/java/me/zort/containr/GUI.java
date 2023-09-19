@@ -131,6 +131,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                 p.openInventory(inventory);
                 GUIRepository.PREV_GUIS.put(p.getName(), temp);
                 initial = false;
+                getContainer().emitEventRecursively(new Container.Event.OpenEvent(this, p));
             }
         }, 3L);
     }
