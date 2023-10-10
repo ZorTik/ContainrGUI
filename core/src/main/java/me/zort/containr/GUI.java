@@ -48,12 +48,12 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     }
 
     private final Container container;
-    private final Inventory inventory;
-    private final String title;
     @Getter(onMethod_ = @NotNull)
     private final List<NormalEditHandler> normalEditHandlers;
     @Getter(value = AccessLevel.PROTECTED, onMethod_ = @NotNull)
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
+    private Inventory inventory;
+    private String title;
 
     @Setter private boolean frozen = false;
     private boolean initial = true;
@@ -108,6 +108,19 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     }
 
     public void open(@NotNull Player p, boolean update) {
+        reopen(p, inventory, update, true);
+    }
+
+    public void reopen(@NotNull Player p,
+                       @NotNull Inventory inventory) {
+        reopen(p, inventory, true, true);
+    }
+
+    public void reopen(@NotNull Player p,
+                       @NotNull Inventory inventory,
+                       boolean update,
+                       boolean emitEvents) {
+        this.inventory = inventory;
         if(!initial && this instanceof Rebuildable) {
             ((Rebuildable) this).rebuild();
             ((Rebuildable) this).rebuild(p);
@@ -131,7 +144,9 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                 p.openInventory(inventory);
                 GUIRepository.PREV_GUIS.put(p.getName(), temp);
                 initial = false;
-                getContainer().emitEventRecursively(new Container.Event.OpenEvent(this, p));
+                if (emitEvents) {
+                    getContainer().emitEventRecursively(new Container.Event.OpenEvent(this, p));
+                }
             }
         }, 3L);
     }
