@@ -27,15 +27,15 @@ public interface Component {
             after = new CopyOnWriteArrayList<>();
         }
 
-        public @NotNull ElementDeserializer nameModifier(BiConsumer<String, ItemStack> mod) {
-            return addModifier((b, s) -> b.withBuildModifier(item -> mod.accept(b.getName(), item)));
+        public @NotNull ElementDeserializer namePostprocessor(BiConsumer<String, ItemStack> mod) {
+            return addPostprocessor((b, s) -> b.withBuildModifier(item -> mod.accept(b.getName(), item)));
         }
 
-        public @NotNull ElementDeserializer loreModifier(BiConsumer<List<String>, ItemStack> mod) {
-            return addModifier((b, s) -> b.withBuildModifier(item -> mod.accept(b.getLore(), item)));
+        public @NotNull ElementDeserializer lorePostprocessor(BiConsumer<List<String>, ItemStack> mod) {
+            return addPostprocessor((b, s) -> b.withBuildModifier(item -> mod.accept(b.getLore(), item)));
         }
 
-        public @NotNull ElementDeserializer addModifier(BiConsumer<ItemBuilder, ConfigurationSection> mod) {
+        public @NotNull ElementDeserializer addPostprocessor(BiConsumer<ItemBuilder, ConfigurationSection> mod) {
             after.add(mod);
             return this;
         }
