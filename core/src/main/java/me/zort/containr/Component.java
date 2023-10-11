@@ -19,6 +19,26 @@ import java.util.function.BiConsumer;
  */
 public interface Component {
 
+    /**
+     * ElementDeserializer could help with centralizing
+     * deserialization which allows us to use shared postprocessors
+     * for deserialization.
+     * <p></p>
+     * This class can be used same way as the #element methods in Component
+     * class, with the difference that it's centralized.
+     *
+     * <p></p>
+     * Usage:
+     * <pre>
+     *     ElementDeserializer deserializer = Component.elementDeserializer();
+     *     deserializer.namePostprocessor((name, item) -> {
+     *          // Process name and set it to the final item.
+     *          // This will be called after the item is built.
+     *     });
+     *     ConfigurationSection itemSection = ...;
+     *     Element element = deserializer.element(itemSection);
+     * </pre>
+     */
     class ElementDeserializer {
 
         private final List<BiConsumer<ItemBuilder, ConfigurationSection>> after;
@@ -39,6 +59,8 @@ public interface Component {
             after.add(mod);
             return this;
         }
+
+        // *** These methods directly call the Component.element methods ***
 
         public @NotNull SimpleElementBuilder element() {
             return Component.element();
