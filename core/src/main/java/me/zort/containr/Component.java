@@ -6,6 +6,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 /**
@@ -15,6 +18,47 @@ import java.util.function.BiConsumer;
  * @author ZorTik
  */
 public interface Component {
+
+    class ElementDeserializer {
+
+        private final List<BiConsumer<ItemBuilder, ConfigurationSection>> after;
+
+        private ElementDeserializer() {
+            after = new CopyOnWriteArrayList<>();
+        }
+
+        public @NotNull ElementDeserializer nameModifier(BiConsumer<String, ItemStack> mod) {
+            return addModifier((b, s) -> b.withBuildModifier(item -> mod.accept(b.getName(), item)));
+        }
+
+        public @NotNull ElementDeserializer loreModifier(BiConsumer<List<String>, ItemStack> mod) {
+            return addModifier((b, s) -> b.withBuildModifier(item -> mod.accept(b.getLore(), item)));
+        }
+
+        public @NotNull ElementDeserializer addModifier(BiConsumer<ItemBuilder, ConfigurationSection> mod) {
+            after.add(mod);
+            return this;
+        }
+
+        public @NotNull SimpleElementBuilder element() {
+            return Component.element();
+        }
+
+        public @NotNull SimpleElementBuilder element(ConfigurationSection section) {
+            return Component.element(section);
+        }
+
+        public @NotNull SimpleElementBuilder element(
+                ConfigurationSection section,
+                BiConsumer<ItemBuilder, ConfigurationSection> modifier
+        ) {
+            return Component.element(section, (b, s) -> {
+                modifier.accept(b, s);
+                after.forEach(consumer -> consumer.accept(b, s));
+            });
+        }
+
+    }
 
     /**
      * Creates a new GUI builder.
@@ -82,6 +126,10 @@ public interface Component {
             BiConsumer<ItemBuilder, ConfigurationSection> modifier
     ) {
         return SimpleElementBuilder.fromConfig(section, modifier);
+    }
+
+    static @NotNull ElementDeserializer elementDeserializer() {
+        return new ElementDeserializer();
     }
 
     /**

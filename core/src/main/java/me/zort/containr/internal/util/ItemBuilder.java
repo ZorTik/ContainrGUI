@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,8 +18,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @AllArgsConstructor
+@Getter
 public final class ItemBuilder {
 
     public static @NotNull ItemBuilder fromConfig(ConfigurationSection section) {
@@ -86,6 +89,7 @@ public final class ItemBuilder {
     private List<String> lore;
     private Map<Enchantment, Integer> enchantments;
     private int customModelData;
+    private final List<Consumer<ItemStack>> modifiers;
 
     public ItemBuilder() {
         this.type = Material.AIR;
@@ -95,6 +99,7 @@ public final class ItemBuilder {
         this.lore = Lists.newArrayList();
         this.enchantments = Maps.newHashMap();
         this.customModelData = -1;
+        this.modifiers = new ArrayList<>();
     }
 
     public ItemBuilder withType(Material type) {
@@ -141,6 +146,11 @@ public final class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder withBuildModifier(Consumer<ItemStack> modifier) {
+        this.modifiers.add(modifier);
+        return this;
+    }
+
     public ItemBuilder enchanted() {
         return withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
     }
@@ -172,6 +182,7 @@ public final class ItemBuilder {
             }
             item.setItemMeta(meta);
         }
+        modifiers.forEach(modifier -> modifier.accept(item));
         return item;
     }
 
