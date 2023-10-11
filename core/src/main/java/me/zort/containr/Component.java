@@ -5,6 +5,7 @@ import me.zort.containr.internal.util.ItemBuilder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,12 @@ public interface Component {
                 modifier.accept(b, s);
                 after.forEach(consumer -> consumer.accept(b, s));
             });
+        }
+
+        public ItemBuilder apply(ItemStack item, @Nullable ConfigurationSection section) {
+            ItemBuilder builder = ItemBuilder.newBuilder(item);
+            after.forEach(consumer -> consumer.accept(builder, section));
+            return builder;
         }
 
     }
