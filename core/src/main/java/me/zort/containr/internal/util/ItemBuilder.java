@@ -13,6 +13,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public final class ItemBuilder {
 
     public static @NotNull ItemBuilder newBuilder(ItemStack origin) {
         List<String> lore = origin.getItemMeta().getLore() != null ? origin.getItemMeta().getLore() : new ArrayList<>();
-        return new ItemBuilder()
+        ItemBuilder builder = new ItemBuilder()
                 .withType(origin.getType())
                 .withData(origin.getData().getData())
                 .withAmount(origin.getAmount())
@@ -80,6 +81,15 @@ public final class ItemBuilder {
                 .withCustomModelData(origin.getItemMeta().hasCustomModelData()
                         ? origin.getItemMeta().getCustomModelData()
                         : -1);
+        if (origin.getItemMeta() instanceof SkullMeta) {
+            builder.withBuildModifier(item -> {
+                SkullMeta meta = (SkullMeta) item.getItemMeta();
+                assert meta != null;
+                meta.setOwnerProfile(((SkullMeta) origin.getItemMeta()).getOwnerProfile());
+                item.setItemMeta(meta);
+            });
+        }
+        return builder;
     }
 
     private Material type;
