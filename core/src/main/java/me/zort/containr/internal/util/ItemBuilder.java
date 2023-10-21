@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,13 +13,16 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @AllArgsConstructor
+@Getter
 public final class ItemBuilder {
 
     public static @NotNull ItemBuilder fromConfig(ConfigurationSection section) {
@@ -65,7 +69,7 @@ public final class ItemBuilder {
 
     public static @NotNull ItemBuilder newBuilder(ItemStack origin) {
         List<String> lore = origin.getItemMeta().getLore() != null ? origin.getItemMeta().getLore() : new ArrayList<>();
-        return new ItemBuilder()
+        ItemBuilder builder = new ItemBuilder()
                 .withType(origin.getType())
                 .withData(origin.getData().getData())
                 .withAmount(origin.getAmount())
@@ -77,6 +81,15 @@ public final class ItemBuilder {
                 .withCustomModelData(origin.getItemMeta().hasCustomModelData()
                         ? origin.getItemMeta().getCustomModelData()
                         : -1);
+        if (origin.getItemMeta() instanceof SkullMeta) {
+            builder.withBuildModifier(item -> {
+                SkullMeta meta = (SkullMeta) item.getItemMeta();
+                assert meta != null;
+                meta.setOwnerProfile(((SkullMeta) origin.getItemMeta()).getOwnerProfile());
+                item.setItemMeta(meta);
+            });
+        }
+        return builder;
     }
 
     private Material type;
@@ -86,6 +99,7 @@ public final class ItemBuilder {
     private List<String> lore;
     private Map<Enchantment, Integer> enchantments;
     private int customModelData;
+    private final List<Consumer<ItemStack>> modifiers;
 
     public ItemBuilder() {
         this.type = Material.AIR;
@@ -95,6 +109,7 @@ public final class ItemBuilder {
         this.lore = Lists.newArrayList();
         this.enchantments = Maps.newHashMap();
         this.customModelData = -1;
+        this.modifiers = new ArrayList<>();
     }
 
     public ItemBuilder withType(Material type) {
@@ -141,6 +156,11 @@ public final class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder withBuildModifier(Consumer<ItemStack> modifier) {
+        this.modifiers.add(modifier);
+        return this;
+    }
+
     public ItemBuilder enchanted() {
         return withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
     }
@@ -172,6 +192,7 @@ public final class ItemBuilder {
             }
             item.setItemMeta(meta);
         }
+        modifiers.forEach(modifier -> modifier.accept(item));
         return item;
     }
 

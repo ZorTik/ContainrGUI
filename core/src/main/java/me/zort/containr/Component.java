@@ -5,7 +5,11 @@ import me.zort.containr.internal.util.ItemBuilder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 /**
@@ -15,6 +19,75 @@ import java.util.function.BiConsumer;
  * @author ZorTik
  */
 public interface Component {
+
+    /**
+     * ElementDeserializer could help with centralizing
+     * deserialization which allows us to use shared postprocessors
+     * for deserialization.
+     * <p></p>
+     * This class can be used same way as the #element methods in Component
+     * class, with the difference that it's centralized.
+     *
+     * <p></p>
+     * Usage:
+     * <pre>
+     *     ElementDeserializer deserializer = Component.elementDeserializer();
+     *     deserializer.namePostprocessor((name, item) -> {
+     *          // Process name and set it to the final item.
+     *          // This will be called after the item is built.
+     *     });
+     *     ConfigurationSection itemSection = ...;
+     *     Element element = deserializer.element(itemSection);
+     * </pre>
+     */
+    class ElementDeserializer {
+
+        private final List<BiConsumer<ItemBuilder, ConfigurationSection>> after;
+
+        private ElementDeserializer() {
+            after = new CopyOnWriteArrayList<>();
+        }
+
+        public @NotNull ElementDeserializer namePostprocessor(BiConsumer<String, ItemStack> mod) {
+            return addPostprocessor((b, s) -> b.withBuildModifier(item -> mod.accept(b.getName(), item)));
+        }
+
+        public @NotNull ElementDeserializer lorePostprocessor(BiConsumer<List<String>, ItemStack> mod) {
+            return addPostprocessor((b, s) -> b.withBuildModifier(item -> mod.accept(b.getLore(), item)));
+        }
+
+        public @NotNull ElementDeserializer addPostprocessor(BiConsumer<ItemBuilder, ConfigurationSection> mod) {
+            after.add(mod);
+            return this;
+        }
+
+        // *** These methods directly call the Component.element methods ***
+
+        public @NotNull SimpleElementBuilder element() {
+            return Component.element();
+        }
+
+        public @NotNull SimpleElementBuilder element(ConfigurationSection section) {
+            return Component.element(section);
+        }
+
+        public @NotNull SimpleElementBuilder element(
+                ConfigurationSection section,
+                BiConsumer<ItemBuilder, ConfigurationSection> modifier
+        ) {
+            return Component.element(section, (b, s) -> {
+                modifier.accept(b, s);
+                after.forEach(consumer -> consumer.accept(b, s));
+            });
+        }
+
+        public ItemBuilder apply(ItemStack item, @Nullable ConfigurationSection section) {
+            ItemBuilder builder = ItemBuilder.newBuilder(item);
+            after.forEach(consumer -> consumer.accept(builder, section));
+            return builder;
+        }
+
+    }
 
     /**
      * Creates a new GUI builder.
@@ -82,6 +155,10 @@ public interface Component {
             BiConsumer<ItemBuilder, ConfigurationSection> modifier
     ) {
         return SimpleElementBuilder.fromConfig(section, modifier);
+    }
+
+    static @NotNull ElementDeserializer elementDeserializer() {
+        return new ElementDeserializer();
     }
 
     /**
