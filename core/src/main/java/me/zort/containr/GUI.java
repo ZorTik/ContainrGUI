@@ -129,7 +129,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
 
         if(initial) {
             // Init loop
-            initializeContainers(p);
+            initializeModel(p);
         }
 
         if(update) update(p);
@@ -151,7 +151,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         }, 3L);
     }
 
-    private void initializeContainers(Player p) {
+    private void initializeModel(Player p) {
         updateContextInfo(p);
         List<Container> initList = new ArrayList<>();
         while(true) {
