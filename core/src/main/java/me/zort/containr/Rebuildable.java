@@ -1,7 +1,6 @@
 package me.zort.containr;
 
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents a rebuildable GUI.
@@ -26,8 +25,6 @@ public interface Rebuildable {
      *
      * @deprecated Use {@link #rebuild(Player)} instead.
      */
-    @ApiStatus.ScheduledForRemoval
-    @Deprecated
     default void rebuild() {}
 
     /**

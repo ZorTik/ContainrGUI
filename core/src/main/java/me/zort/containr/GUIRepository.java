@@ -68,7 +68,7 @@ public final class GUIRepository {
         return OPENED_GUIS.containsKey(nick);
     }
 
-    protected static void add(String nick, GUI gui) {
+    static void add(String nick, GUI gui) {
         Optional<GUI> guiOptional;
         if((guiOptional = getPrevious(nick)).isPresent() && guiOptional.get() == gui) return;
         if(gui instanceof Rebuildable && !(gui instanceof Silent)) {
