@@ -12,7 +12,8 @@ An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imag
 ## About
 Creating a static GUI (Graphical User Interface) can be a tedious and time-consuming task, especially when working with complex environments like Minecraft. That's where the Containr library comes in. **Reactive**, **modular** and highly **extendable**. These are the words that describe Containr well!
 
-Hello World:
+## Hello World
+This library makes building GUIs simple as 1, 2, 3. See.
 ```java
 Component.gui()
     .title("GUI Title")
