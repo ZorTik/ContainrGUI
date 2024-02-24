@@ -18,7 +18,8 @@ Component.gui()
     .title("GUI Title")
     .rows(3)
     .prepare((g) -> {
-        g.setContainer(1, Component.staticContainer()
+	// Do that magic
+	Container container = Component.staticContainer()
 	    .size(4, 1)
 	    .init(c -> {
 	    	c.fillElement(Component.element()
@@ -28,8 +29,8 @@ Component.gui()
                     })
                     .item(Items.create(Material.REDSTONE_BLOCK, "§aHello World Message"))
                     .build());
-	    })
-	    .build());
+	    }).build();
+        g.setContainer(1, container);
     })
     .build()
     .open(player);
