@@ -30,7 +30,7 @@ allprojects {
 dependencies {
     implementation project(':core')
     implementation group: 'org.jetbrains', name: 'annotations', version: '20.1.0'
-    implementation 'de.tr7zw:item-nbt-api:2.13.1'
+    implementation 'de.tr7zw:item-nbt-api:2.15.5'
     compileOnly 'io.projectreactor:reactor-core:3.5.2' // Should be included in using projects.
     compileOnly 'commons-lang:commons-lang:2.6'
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
@@ -43,7 +43,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     testImplementation project(':core')
     testImplementation group: 'org.jetbrains', name: 'annotations', version: '20.1.0'
-    testImplementation 'de.tr7zw:item-nbt-api:2.13.1'
+    testImplementation 'de.tr7zw:item-nbt-api:2.15.5'
     testImplementation 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
     testCompileOnly 'io.projectreactor:reactor-core:3.5.2' // Should be included in using projects.
     testCompileOnly 'commons-lang:commons-lang:2.6'
