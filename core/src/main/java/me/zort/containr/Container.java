@@ -80,6 +80,8 @@ public abstract class Container implements ContainerComponent {
     protected void doInit() {
         if (!initialized) {
             init();
+
+            initialized = true;
         }
     }
 
