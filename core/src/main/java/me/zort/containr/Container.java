@@ -40,6 +40,7 @@ public abstract class Container implements ContainerComponent {
     private final Region selection;
     private Container parent;
     private UpdateContext lastUpdateContext = null;
+    private boolean initialized = false;
 
     public Container(final int xSize, final int ySize) {
         this.containers = new ConcurrentHashMap<>();
@@ -75,6 +76,14 @@ public abstract class Container implements ContainerComponent {
      * @param player The player that is subject of the update
      */
     @ApiStatus.OverrideOnly public void refresh(Player player) {}
+
+    protected void doInit() {
+        if (!initialized) {
+            init();
+
+            initialized = true;
+        }
+    }
 
     @ApiStatus.OverrideOnly
     public <T extends Element> Map<Integer, T> content(Class<T> clazz) {

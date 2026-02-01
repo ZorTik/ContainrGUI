@@ -161,7 +161,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                 if (initList.contains(inner)) {
                     continue;
                 }
-                inner.init();
+                inner.doInit();
                 initList.add(inner);
             }
             if(initList.size() == initSizeBef) {
@@ -204,7 +204,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         Objects.requireNonNull(p, "Player cannot be null");
 
         try {
-            updateContextInfo(p);
+            initializeModel(p);
             container.innerContainers().forEach(c -> c.refresh(p));
             Map<Integer, ?> content = container.content(clazz.length > 0 ? Arrays.asList(clazz) : null);
             content.keySet().forEach(slot -> {
