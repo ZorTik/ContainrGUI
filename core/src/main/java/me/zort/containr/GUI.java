@@ -217,6 +217,7 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
                     item = NBT.modifyNBT(item, nbtItem -> nbtItem.setString(Constants.ELEMENT_ID_KEY, element.getId()));
                 }
                 if(slot < inventory.getSize() && slot >= 0) {
+                    item = element.postProcessItem(p, item);
                     inventory.setItem(slot, item);
                 } else {
                     String err = "Cannot complete menu %s for player %s because index out of bounds: %d >= %d";
