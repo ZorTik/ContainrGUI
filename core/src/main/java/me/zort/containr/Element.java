@@ -9,6 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
+
 @Getter
 public abstract class Element implements Component {
 
@@ -23,4 +25,14 @@ public abstract class Element implements Component {
     @Nullable
     public abstract ItemStack item(Player player);
 
+    /**
+     * Post-process the created ItemStack before it is applied to the GUI.
+     *
+     * @param player The player for which the item has been created.
+     * @param item The created item. Is not the same as the returned from {@link #item(Player)}.
+     * @param newItemConsumer The handler that MUST be called after the item has been modified to update the menu.
+     */
+    public void postProcessItem(Player player, ItemStack item, Consumer<ItemStack> newItemConsumer) {
+        // No modifications by default.
+    }
 }
