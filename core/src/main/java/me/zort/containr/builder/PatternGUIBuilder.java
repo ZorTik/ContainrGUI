@@ -123,6 +123,10 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
             return (gui, player) -> element;
         }
 
+        static ElementFactory of(BiFunction<GUI, Player, Element> func) {
+            return func::apply;
+        }
+
     }
 
     class SymbolMatchIterator implements Iterator<Integer> {
