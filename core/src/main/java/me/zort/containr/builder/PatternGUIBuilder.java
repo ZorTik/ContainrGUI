@@ -8,12 +8,15 @@ import me.zort.containr.component.gui.AnimatedGUI;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -27,15 +30,99 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
-    private final Map<Integer, Container> containers = new ConcurrentHashMap<>();
-    private final Map<Integer, Element> elements = new ConcurrentHashMap<>();
+    private final Map<Integer, ContainerFactory> containerFactories = new ConcurrentHashMap<>();
+    private final Map<Integer, ElementFactory> elementFactories = new ConcurrentHashMap<>();
     private final String[] pattern;
     private final int rows;
-    private String title;
-    private Element filler = null;
 
+    private String title;
+    private ElementFactory fillerFactory = null;
+
+    /**
+     * @deprecated Use {@link GUIFactory} instead.
+     */
+    @Deprecated
     public interface PatternGUIFactory<T extends GUI> {
+
         T create(String title, int rows, Consumer<GUI> doBuildFunction);
+
+    }
+
+    /**
+     * A factory that constructs a GUI based on provided title, rows and a build function.
+     *
+     * @param <T> Type of the GUI to be built.
+     */
+    public interface GUIFactory<T extends GUI> {
+
+        /**
+         * Constructs a GUI based on provided title, rows and a build function.
+         *
+         * @param title GUI's title.
+         * @param rows GUI's rows.
+         * @param doBuildFunction A function that accepts a GUI and a player and builds the GUI by setting
+         *                        containers and elements to it.
+         * @return Constructed GUI.
+         */
+        T create(String title, int rows, BiConsumer<GUI, Player> doBuildFunction);
+
+    }
+
+    public interface ContainerFactory {
+
+        /**
+         * Construct a container.
+         *
+         * @param gui The GUI the container is being built for.
+         * @param player The player for whom the GUI is being built.
+         * @return The container.
+         */
+        Container create(GUI gui, Player player);
+
+        static ContainerFactory of(Container container) {
+            return (gui, player) -> container;
+        }
+
+    }
+
+    public interface AbstractContainerFactory {
+
+        /**
+         * Creates a container factory based on x and y sizes.
+         *
+         * @param xSize X size.
+         * @param ySize Y size.
+         * @return The created container factory.
+         */
+        ContainerFactory create(int xSize, int ySize);
+
+        @Contract(pure = true)
+        static @NotNull AbstractContainerFactory containerFactory(BiFunction<Integer, Integer, ContainerFactory> func) {
+            return func::apply;
+        }
+
+        @Contract(pure = true)
+        static @NotNull AbstractContainerFactory container(BiFunction<Integer, Integer, Container> func) {
+            return (xSize, ySize) -> (gui, player) -> func.apply(xSize, ySize);
+        }
+
+    }
+
+    public interface ElementFactory {
+
+        /**
+         * Construct an element.
+         *
+         * @param gui The GUI the element is being built for.
+         * @param player The player for whom the GUI is being built.
+         * @return The element.
+         */
+        Element create(GUI gui, Player player);
+
+        static ElementFactory of(Element element) {
+            return (gui, player) -> element;
+        }
+
     }
 
     class SymbolMatchIterator implements Iterator<Integer> {
@@ -157,25 +244,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
 
     }
 
-    /**
-     * @deprecated Use {@link PatternContainerFactory} instead.
-     */
     @Deprecated
-    public interface ContainerFactoryHelper<T extends Container> {
-
-        /**
-         * Constructs a container based on found x and y sizes.
-         * These sizes are calculated from provided pattern in the
-         * {@link PatternGUIBuilder}.
-         *
-         * @param xSize X size.
-         * @param ySize Y size.
-         * @return Constructed container.
-         */
-        T create(int xSize, int ySize);
-
-    }
-
     public interface PatternContainerFactory<T extends Container> {
 
         /**
@@ -230,8 +299,8 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      *         type: "DIAMOND"
      * </pre>
      *
-     * @param section
-     * @return
+     * @param section The configuration section to build the PatternGUIBuilder from.
+     * @return The built PatternGUIBuilder.
      */
     public static @NotNull PatternGUIBuilder fromConfig(ConfigurationSection section) {
         PatternGUIBuilder builder = new PatternGUIBuilder(
@@ -260,59 +329,90 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         return this;
     }
 
-    public <T extends Container> @NotNull PatternGUIBuilder andMark(
-            String symbol,
-            Class<T> typeClass,
-            Consumer<T> initFunction
-    ) {
-        return andMark(symbol, typeClass, (xSize, ySize) -> ContainerBuilder.newBuilder(typeClass)
-                .size(xSize, ySize)
-                .init(Objects.requireNonNull(initFunction))
-                .build());
-    }
-
     /**
-     * @deprecated Use {@link #andMark(String, Class, PatternContainerFactory, Consumer)} instead.
+     * @deprecated Use {@link #andMark(String, AbstractContainerFactory)} instead.
      */
     @Deprecated
     public <T extends Container> @NotNull PatternGUIBuilder andMark(
             String symbol,
             Class<T> typeClass,
-            ContainerFactoryHelper<T> containerFactory
+            Consumer<T> initFunction
     ) {
-        return andMark(symbol, typeClass,
-                (xSize, ySize, initFunction) -> containerFactory.create(xSize, ySize),
-                c -> {}
-        );
+        return andMark(symbol, typeClass, (xSize, ySize, initFunc) -> ContainerBuilder.newBuilder(typeClass)
+                .size(xSize, ySize)
+                .init(Objects.requireNonNull(initFunc))
+                .build(), initFunction);
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * @deprecated Use {@link #andMark(String, AbstractContainerFactory)} instead.
+     */
+    @Deprecated
     public <T extends Container> @NotNull PatternGUIBuilder andMark(
             String symbol,
             Class<T> typeClass,
             PatternContainerFactory<T> containerFactory,
             Consumer<T> initFunction
     ) {
-        for(PatternContainerMatcher.SizeMatch match
-                : new PatternContainerMatcher(pattern, Objects.requireNonNull(symbol)).match()) {
-            T container = Objects.requireNonNull(containerFactory).create(
-                    match.getSize()[0],
-                    match.getSize()[1],
-                    initFunction
-            );
-            this.containers.put(match.getIndex(), container);
-        }
-        return this;
+        return andMark(symbol, (AbstractContainerFactory) (xSize, ySize) ->
+                (ContainerFactory) (gui, player) -> containerFactory.create(xSize, ySize, initFunction));
     }
 
-    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
-        checkSymbol(symbol);
-        new SymbolMatchIterator(symbol, i -> true).forEachRemaining(i -> elements.put(i, element));
+    /**
+     * Marks a symbol in the pattern as a container with a factory that creates
+     * a container based on found x and y sizes.
+     * <p></p>
+     * Example:
+     * <pre>
+     *     andMark("X", AbstractContainerFactory.containerFactory((xSize, ySize) -> {
+     *             return (gui, player) -> {
+     *                 return Component.staticContainer()
+     *                         .size(xSize, ySize)
+     *                         .init(c -> {
+     *                             // init logic
+     *                         })
+     *                         .build();
+     *             };
+     *         }));
+     *     andMark("X", AbstractContainerFactory.container((xSize, ySize) -> {
+     *             return Component.staticContainer()
+     *                     .size(xSize, ySize)
+     *                     .init(c -> {
+     *                         // init logic
+     *                     })
+     *                     .build();
+     *         }));
+     * </pre>
+     *
+     * @param symbol Symbol to be marked as a container.
+     * @param abstractContainerFactory Factory that creates a container factory based on found x and y sizes.
+     * @return This builder.
+     */
+    public @NotNull PatternGUIBuilder andMark(String symbol, AbstractContainerFactory abstractContainerFactory) {
+        Objects.requireNonNull(symbol);
+        Objects.requireNonNull(abstractContainerFactory);
+
+        for(PatternContainerMatcher.SizeMatch match : new PatternContainerMatcher(pattern, symbol).match()) {
+            ContainerFactory containerFactory = abstractContainerFactory.create(
+                    match.getSize()[0], match.getSize()[1]);
+
+            this.containerFactories.put(match.getIndex(), containerFactory);
+        }
         return this;
     }
 
     public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull ItemStack item) {
         return andMark(symbol, ItemElement.on(item));
+    }
+
+    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull Element element) {
+        return andMark(symbol, ElementFactory.of(element));
+    }
+
+    public PatternGUIBuilder andMark(final @NotNull String symbol, final @NotNull ElementFactory elementFactory) {
+        checkSymbol(symbol);
+        new SymbolMatchIterator(symbol, i -> true).forEachRemaining(i -> elementFactories.put(i, elementFactory));
+        return this;
     }
 
     /**
@@ -343,43 +443,92 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      * @return This builder.
      */
     public PatternGUIBuilder andQueue(final @NotNull String symbol, Element... elementsToAdd) {
+        ElementFactory[] factories = new ElementFactory[elementsToAdd.length];
+        for(int i = 0; i < elementsToAdd.length; i++) {
+            factories[i] = ElementFactory.of(elementsToAdd[i]);
+        }
+
+        return andQueue(symbol, factories);
+    }
+
+    /**
+     * @see #andQueue(String, Element...)
+     */
+    public PatternGUIBuilder andQueue(final @NotNull String symbol, ElementFactory... elementsToAdd) {
         checkSymbol(symbol);
-        SymbolMatchIterator iter = new SymbolMatchIterator(symbol, i -> !elements.containsKey(i));
-        for(Element element : elementsToAdd) {
+        SymbolMatchIterator iter = new SymbolMatchIterator(symbol, i -> !elementFactories.containsKey(i));
+        for(ElementFactory element : elementsToAdd) {
             if(!iter.hasNext()) break;
-            elements.put(iter.next(), element);
+            elementFactories.put(iter.next(), element);
         }
         return this;
     }
 
     public PatternGUIBuilder andFill(final @Nullable Element element) {
-        this.filler = element;
+        return andFill(element == null ? null : ElementFactory.of(element));
+    }
+
+    public PatternGUIBuilder andFill(final @Nullable ElementFactory elementFactory) {
+        this.fillerFactory = elementFactory;
         return this;
     }
 
+    /**
+     * Builds an animated GUI with the specified update period.
+     *
+     * @param period The update period for the animated GUI.
+     * @param unit The time unit for the update period.
+     * @return The built animated GUI.
+     */
     public @NotNull AnimatedGUI build(int period, TimeUnit unit) {
         return new SimpleGUIBuilder().title(title).rows(rows)
                 .prepare(this::doBuild)
                 .build(period, unit);
     }
 
+    /**
+     * Builds the GUI.
+     *
+     * @return The built GUI.
+     */
     public @NotNull GUI build() {
         return new SimpleGUIBuilder().title(title).rows(rows)
                 .prepare(this::doBuild)
                 .build();
     }
 
+    /**
+     * @deprecated Use {@link #build(GUIFactory)} instead.
+     */
+    @Deprecated
     public <T extends GUI> @NotNull T build(PatternGUIFactory<T> factory) {
+        return factory.create(title, rows, (gui) -> doBuild(gui, null));
+    }
+
+    /**
+     * Builds the GUI using a custom GUI factory.
+     *
+     * @param factory The factory to build the GUI with.
+     * @return The built GUI.
+     * @param <T> Type of the GUI to be built.
+     */
+    public <T extends GUI> @NotNull T build(GUIFactory<T> factory) {
         return factory.create(title, rows, this::doBuild);
     }
 
-    private void doBuild(GUI gui) {
+    private void doBuild(GUI gui, Player player) {
         Container container = gui.getContainer();
         container.clear();
-        containers.forEach(container::setContainer);
-        elements.forEach(container::setElement);
-        if(filler != null) {
-            container.fillElement(filler);
+
+        containerFactories.forEach((slot, factory) -> {
+            container.setContainer(slot, factory.create(gui, player));
+        });
+        elementFactories.forEach((slot, factory) -> {
+            container.setElement(slot, factory.create(gui, player));
+        });
+
+        if (fillerFactory != null) {
+            container.fillElement(fillerFactory.create(gui, player));
         }
     }
 
