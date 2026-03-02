@@ -9,6 +9,13 @@ import org.bukkit.inventory.Inventory;
 public class InventoryInfo {
 
     private final Inventory inventory;
-    private final String title;
 
+    /**
+     * @deprecated This constructor is deprecated and should not be used. The title parameter is no longer necessary
+     * as the inventory's title can be obtained directly from the Inventory instance.
+     */
+    @Deprecated
+    public InventoryInfo(final Inventory inventory, final String title) {
+        this.inventory = inventory;
+    }
 }

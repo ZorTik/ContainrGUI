@@ -1,6 +1,7 @@
 package me.zort.containr.component.gui;
 
 import me.zort.containr.GUI;
+import me.zort.containr.InventoryFactory;
 import me.zort.containr.component.element.AnimatedElement;
 import me.zort.containr.component.element.AnimatedSuppliedElement;
 import lombok.Getter;
@@ -23,6 +24,13 @@ public abstract class AnimatedGUI extends GUI {
     @Setter
     @Getter
     private long period;
+
+    public AnimatedGUI(@NotNull InventoryFactory inventoryFactory, int period, TimeUnit unit) {
+        super(inventoryFactory);
+        this.period = unit.toMillis(period);
+        this.currentPlayer = null;
+        this.stopped = false;
+    }
 
     public AnimatedGUI(String title, int rows, int period, TimeUnit unit) {
         super(title, rows);

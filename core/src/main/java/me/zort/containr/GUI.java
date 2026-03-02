@@ -39,10 +39,18 @@ import static me.zort.containr.util.Util.runCatching;
 @Getter
 public abstract class GUI extends ContainerHolder implements InventoryHolder, Cloneable {
 
+    /**
+     * @deprecated Initialize by PatternGUIBuilder's constructor instead
+     */
+    @Deprecated
     public static @NotNull PatternGUIBuilder ofPattern(@NotNull final Collection<String> pattern) {
         return ofPattern(pattern.toArray(new String[0]));
     }
 
+    /**
+     * @deprecated Initialize by PatternGUIBuilder's constructor instead
+     */
+    @Deprecated
     public static @NotNull PatternGUIBuilder ofPattern(@NotNull final String[] pattern) {
         return new PatternGUIBuilder("", pattern);
     }
@@ -53,7 +61,6 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
     @Getter(value = AccessLevel.PROTECTED, onMethod_ = @NotNull)
     private final Map<CloseReason, List<Consumer<Player>>> closeHandlers;
     private Inventory inventory;
-    private String title;
 
     @Setter private boolean frozen = false;
     private boolean initial = true;
@@ -67,7 +74,6 @@ public abstract class GUI extends ContainerHolder implements InventoryHolder, Cl
         InventoryInfo info = inventoryFactory.createInventory(this);
         this.container = Containers.ofInv(info.getInventory());
         this.inventory = info.getInventory();
-        this.title = info.getTitle();
         this.normalEditHandlers = Collections.synchronizedList(new ArrayList<>());
         this.closeHandlers = Maps.newConcurrentMap();
         setNormalItemSlots();

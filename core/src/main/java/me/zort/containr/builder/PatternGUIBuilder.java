@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.zort.containr.*;
 import me.zort.containr.component.element.ItemElement;
 import me.zort.containr.component.gui.AnimatedGUI;
+import me.zort.containr.factory.BasicInventoryFactory;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,7 +36,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
     private final String[] pattern;
     private final int rows;
 
-    private String title;
+    private InventoryFactory inventoryFactory;
     private ElementFactory fillerFactory = null;
 
     /**
@@ -58,13 +59,12 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
         /**
          * Constructs a GUI based on provided title, rows and a build function.
          *
-         * @param title GUI's title.
-         * @param rows GUI's rows.
+         * @param inventoryFactory An inventory factory to be used for constructing the GUI's inventory.
          * @param doBuildFunction A function that accepts a GUI and a player and builds the GUI by setting
          *                        containers and elements to it.
          * @return Constructed GUI.
          */
-        T create(String title, int rows, BiConsumer<GUI, Player> doBuildFunction);
+        T create(InventoryFactory inventoryFactory, BiConsumer<GUI, Player> doBuildFunction);
 
     }
 
@@ -267,10 +267,14 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
     }
 
     public PatternGUIBuilder(final @NotNull String title, final @NotNull String[] pattern) {
+        this(new BasicInventoryFactory(title, pattern.length), pattern);
+    }
+
+    public PatternGUIBuilder(final InventoryFactory inventoryFactory, final @NotNull String[] pattern) {
         checkArgument(
                 pattern.length > 0 && pattern.length < 7, "Pattern height must be > 0 and < 7!");
         validatePatternWidth(pattern);
-        this.title = title;
+        this.inventoryFactory = inventoryFactory;
         this.rows = pattern.length;
         this.pattern = pattern;
     }
@@ -327,9 +331,15 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      *
      * @param title The title to set.
      * @return The current builder.
+     * @deprecated Pass title directly in the constructor.
      */
+    @Deprecated
     public @NotNull PatternGUIBuilder andTitle(final @NotNull String title) {
-        this.title = title;
+        if (!(inventoryFactory instanceof BasicInventoryFactory)) {
+            throw new IllegalStateException("Cannot change title using #andTitle when custom inventory factory is used!");
+        }
+
+        this.inventoryFactory = new BasicInventoryFactory(title, rows);
         return this;
     }
 
@@ -485,9 +495,12 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      * @return The built animated GUI.
      */
     public @NotNull AnimatedGUI build(int period, TimeUnit unit) {
-        return new SimpleGUIBuilder().title(title).rows(rows)
-                .prepare(this::doBuild)
-                .build(period, unit);
+        return new AnimatedGUI(inventoryFactory, period, unit) {
+            @Override
+            public void build(Player p) {
+                doBuild(this, p);
+            }
+        };
     }
 
     /**
@@ -496,17 +509,12 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      * @return The built GUI.
      */
     public @NotNull GUI build() {
-        return new SimpleGUIBuilder().title(title).rows(rows)
-                .prepare(this::doBuild)
-                .build();
-    }
-
-    /**
-     * @deprecated Use {@link #build(GUIFactory)} instead.
-     */
-    @Deprecated
-    public <T extends GUI> @NotNull T build(PatternGUIFactory<T> factory) {
-        return factory.create(title, rows, (gui) -> doBuild(gui, null));
+        return new GUI(inventoryFactory) {
+            @Override
+            public void build(Player p) {
+                doBuild(this, p);
+            }
+        };
     }
 
     /**
@@ -517,7 +525,7 @@ public final class PatternGUIBuilder implements GUIBuilder<GUI> {
      * @param <T> Type of the GUI to be built.
      */
     public <T extends GUI> @NotNull T build(GUIFactory<T> factory) {
-        return factory.create(title, rows, this::doBuild);
+        return factory.create(inventoryFactory, this::doBuild);
     }
 
     private void doBuild(GUI gui, Player player) {
