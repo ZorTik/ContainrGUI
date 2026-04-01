@@ -12,29 +12,39 @@ An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imag
 ## About
 Creating a static GUI (Graphical User Interface) can be a tedious and time-consuming task, especially when working with complex environments like Minecraft. That's where the Containr library comes in. **Reactive**, **modular** and highly **extendable**. These are the words that describe Containr well!
 
+## Features
+- **Reusable Elements & Containers**: Create reusable components for items (*Element*) and containers (*Container*) to keep even the most complex menu systems maintainable.
+- **Nested Containers**: Embed containers within each other to create flexible and modular menu structures. Each container has its own indexing system based on its size.
+- **Pagination Support**: Support for multi-layer pagination using containers, making it easy to handle large amounts of content.
+- **High Performance**: Optimized system enables extremely fast menu creation and updates.
+- **Animation Support**: Built-in support for implementing animations for single elements, or whole containers.
+- **Pattern-based Layout Support**: Define menu layouts using patterns, allowing menus to be configured directly from config files.
+- **YAML Serialization**: Save and load entire menu structures using Spigot YAML configuration files and allow your users to define their own easily.
+
 ## Hello World
 This library makes building GUIs simple as 1, 2, 3. See.
 ```java
-Component.gui()
+GUI gui = Component.gui()
     .title("GUI Title")
     .rows(3)
     .prepare((g) -> {
-	// Do that magic
 	Container container = Component.staticContainer()
 	    .size(4, 1)
 	    .init(c -> {
-	    	c.fillElement(Component.element()
+	    	c.setElement(2, Component.element()
                     .click(info -> {
-                        info.close();
                         info.getPlayer().sendMessage("§7Hello World!");
                     })
-                    .item(Items.create(Material.REDSTONE_BLOCK, "§aHello World Message"))
+                    // Compute an item on every render
+                    .item(info -> Items.create(Material.REDSTONE_BLOCK, "§aHello, " + info.getPlayer().getName()))
                     .build());
 	    }).build();
+    
         g.setContainer(1, container);
     })
-    .build()
-    .open(player);
+    .build();
+
+gui.open(player);
 ```
 [More on new Wiki](https://github.com/ZorTik/ContainrGUI/wiki)
 
