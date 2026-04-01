@@ -13,7 +13,7 @@ An advanced GUI solution. Build fast, responsible, animated menus.<br>Let's imag
 Creating a static GUI (Graphical User Interface) can be a tedious and time-consuming task, especially when working with complex environments like Minecraft. That's where the Containr library comes in. **Reactive**, **modular** and highly **extendable**. These are the words that describe Containr well!
 
 ## Features
-- **Reusable Elements & Containers**: Create reusable components for items (*Element*) and containers (*Container*) to keep even the most complex menu systems maintainable.
+- **Reusable Components**: Create reusable components for items (*Element*) and containers (*Container*) to keep even the most complex menu systems maintainable.
 - **Nested Containers**: Embed containers within each other to create flexible and modular menu structures. Each container has its own indexing system based on its size.
 - **Pagination Support**: Support for multi-layer pagination using containers, making it easy to handle large amounts of content.
 - **High Performance**: Optimized system enables extremely fast menu creation and updates.
@@ -21,8 +21,8 @@ Creating a static GUI (Graphical User Interface) can be a tedious and time-consu
 - **Pattern-based Layout Support**: Define menu layouts using patterns, allowing menus to be configured directly from config files.
 - **YAML Serialization**: Save and load entire menu structures using Spigot YAML configuration files and allow your users to define their own easily.
 
-## Hello World
-This library makes building GUIs simple as 1, 2, 3. See.
+## Simple Hello World
+This library makes building GUIs simple and quick as 1, 2, 3. See:
 ```java
 GUI gui = Component.gui()
     .title("GUI Title")
@@ -33,10 +33,16 @@ GUI gui = Component.gui()
 	    .init(c -> {
 	    	c.setElement(2, Component.element()
                     .click(info -> {
-                        info.getPlayer().sendMessage("§7Hello World!");
+                        Player player = info.getPlayer();
+                        player.sendMessage("§7Time refreshed!");
+                        
+                        info.getGui().update(player);
                     })
                     // Compute an item on every render
-                    .item(info -> Items.create(Material.REDSTONE_BLOCK, "§aHello, " + info.getPlayer().getName()))
+                    .item(info -> Items.create(Material.REDSTONE_BLOCK,
+                            "§cTime: " + DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now()),
+                            "§7Click to refresh the time")
+                    )
                     .build());
 	    }).build();
     
